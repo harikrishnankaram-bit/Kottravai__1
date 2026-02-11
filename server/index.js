@@ -1416,6 +1416,31 @@ if (process.env.NODE_ENV !== 'production') {
                     EXCEPTION
                         WHEN duplicate_column THEN NULL;
                     END;
+                    BEGIN
+                        ALTER TABLE products ADD COLUMN category_slug VARCHAR(100);
+                    EXCEPTION
+                        WHEN duplicate_column THEN NULL;
+                    END;
+                    BEGIN
+                        ALTER TABLE products ADD COLUMN short_description TEXT;
+                    EXCEPTION
+                        WHEN duplicate_column THEN NULL;
+                    END;
+                    BEGIN
+                        ALTER TABLE products ADD COLUMN key_features TEXT[];
+                    EXCEPTION
+                        WHEN duplicate_column THEN NULL;
+                    END;
+                    BEGIN
+                        ALTER TABLE products ADD COLUMN features TEXT[];
+                    EXCEPTION
+                        WHEN duplicate_column THEN NULL;
+                    END;
+                    BEGIN
+                        ALTER TABLE products ADD COLUMN images TEXT[];
+                    EXCEPTION
+                        WHEN duplicate_column THEN NULL;
+                    END;
 
                 -- Wishlist Migration: Check for username column, rename legacy user_email if it exists
                 IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'wishlist') THEN
