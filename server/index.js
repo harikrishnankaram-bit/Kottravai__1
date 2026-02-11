@@ -808,7 +808,10 @@ app.get('/api/wishlist', authenticateToken, async (req, res) => {
         const username = req.user.username;
 
         const query = `
-            SELECT p.* 
+            SELECT 
+                p.id, p.name, p.price, p.category, p.image, p.slug, 
+                p.category_slug, p.short_description, p.is_best_seller, 
+                p.is_custom_request, p.created_at
             FROM products p
             JOIN wishlist w ON p.id = w.product_id
             WHERE w.username = $1
