@@ -255,12 +255,12 @@ app.get('/api/init-db', async (req, res) => {
 
         CREATE TABLE IF NOT EXISTS wishlist (
             id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-            user_email VARCHAR(255) NOT NULL,
+            username VARCHAR(255) NOT NULL,
             product_id UUID REFERENCES products(id) ON DELETE CASCADE,
             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_email, product_id)
+            UNIQUE(username, product_id)
         );
-        CREATE INDEX IF NOT EXISTS idx_wishlist_user_email ON wishlist(user_email);
+        CREATE INDEX IF NOT EXISTS idx_wishlist_username ON wishlist(username);
         `;
 
         await db.query(schemaSql);
