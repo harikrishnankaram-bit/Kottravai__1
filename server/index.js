@@ -258,7 +258,10 @@ app.get('/api/products', async (req, res) => {
 
         console.log('🔍 Fetching products from database...');
         const query = `
-            SELECT p.*
+            SELECT 
+                p.id, p.name, p.price, p.category, p.image, p.slug, 
+                p.category_slug, p.short_description, p.is_best_seller, 
+                p.is_custom_request, p.created_at
             FROM products p
             ORDER BY p.created_at DESC
         `;
