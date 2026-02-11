@@ -194,6 +194,31 @@ app.get('/api/init-db', async (req, res) => {
             EXCEPTION
                 WHEN duplicate_column THEN NULL;
             END;
+            BEGIN
+                ALTER TABLE products ADD COLUMN category_slug VARCHAR(100);
+            EXCEPTION
+                WHEN duplicate_column THEN NULL;
+            END;
+            BEGIN
+                ALTER TABLE products ADD COLUMN short_description TEXT;
+            EXCEPTION
+                WHEN duplicate_column THEN NULL;
+            END;
+            BEGIN
+                ALTER TABLE products ADD COLUMN key_features TEXT[];
+            EXCEPTION
+                WHEN duplicate_column THEN NULL;
+            END;
+            BEGIN
+                ALTER TABLE products ADD COLUMN features TEXT[];
+            EXCEPTION
+                WHEN duplicate_column THEN NULL;
+            END;
+            BEGIN
+                ALTER TABLE products ADD COLUMN images TEXT[];
+            EXCEPTION
+                WHEN duplicate_column THEN NULL;
+            END;
         END $$;
 
         CREATE TABLE IF NOT EXISTS reviews (
