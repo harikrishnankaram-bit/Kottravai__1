@@ -14,9 +14,26 @@ const ProductDetails = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
     const { addToCart, cart, removeFromCart } = useCart();
-    const { products, addReview } = useProducts();
+    const { products, addReview, getProductDetails } = useProducts();
 
     const product = products.find(p => p.slug === slug);
+    const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+
+    useEffect(() => {
+        const loadFullDetails = async () => {
+            if (slug && (!product || !product.description)) {
+                setIsLoadingDetails(true);
+                try {
+                    await getProductDetails(slug);
+                } catch (err) {
+                    console.error("Failed to load full product details");
+                } finally {
+                    setIsLoadingDetails(false);
+                }
+            }
+        };
+        loadFullDetails();
+    }, [slug, product?.description]); // check if description is missing (optimisation)
 
     const [mainImage, setMainImage] = useState('');
     const [quantity, setQuantity] = useState(1);
@@ -97,6 +114,8 @@ const ProductDetails = () => {
     }, [product]);
 
     if (!product) {
+        if (isLoadingDetails) return <MainLayout><div className="flex justify-center py-20">Loading...</div></MainLayout>;
+
         return (
             <MainLayout>
                 <div className="container mx-auto px-4 py-20 text-center">

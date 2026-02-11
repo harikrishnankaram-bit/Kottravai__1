@@ -13,6 +13,7 @@ interface ProductContextType {
     addReview: (productId: string, review: any) => Promise<void>;
     categories: typeof categories;
     loading: boolean;
+    getProductDetails: (slug: string) => Promise<Product>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -141,8 +142,22 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         setProducts(prev => prev.map(p => p.id === id ? { ...p, stock: newStock } : p));
     };
 
+    const getProductDetails = async (slug: string) => {
+        try {
+            const response = await axios.get(`${API_URL}/${slug}`);
+            const fullProduct = mapProductFromDB(response.data);
+
+            // Optimistically update the local state with full details so we don't refetch unnecessarily
+            setProducts(prev => prev.map(p => p.id === fullProduct.id ? fullProduct : p));
+            return fullProduct;
+        } catch (error) {
+            console.error("Failed to fetch product details", error);
+            throw error;
+        }
+    };
+
     return (
-        <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct, updateStock, addReview, categories, loading }}>
+        <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct, updateStock, addReview, categories, loading, getProductDetails }}>
             {children}
         </ProductContext.Provider>
     );
