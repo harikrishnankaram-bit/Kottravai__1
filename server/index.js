@@ -1498,8 +1498,8 @@ app.use(express.static(path.join(__dirname, '../dist')));
 
 // The "catchall" handler: for any request that doesn't
 // match one above, send back React's index.html file.
-app.get('*', (req, res) => {
-    // Only serve index.html if it's not an API route
+app.use((req, res) => {
+    // Only serve index.html if it's not an API route and we are NOT in database init mode
     if (!req.path.startsWith('/api/')) {
         res.sendFile(path.join(__dirname, '../dist/index.html'));
     } else {
