@@ -127,7 +127,7 @@ const AboutUs = () => {
                             {/* Right Visual */}
                             <div className="relative rounded-3xl overflow-hidden shadow-2xl">
                                 <img
-                                    src="https://kottravai.in/wp-content/uploads/2025/11/DSC03396-1.jpg"
+                                    src="/ab.jpg"
                                     alt="Kottravai women artisans"
                                     className="w-full h-auto object-cover"
                                     loading="lazy"
