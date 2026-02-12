@@ -276,7 +276,7 @@ const AboutUs = () => {
                 </section>
 
                 {/* Team Showcase Section */}
-                <section className="py-24 bg-white overflow-hidden">
+                <section className="py-24 bg-white overflow-hidden pb-0">
                     <div className="container mx-auto px-4 mb-20">
                         <div className="text-center max-w-3xl mx-auto mb-16">
                             <h2 className="text-3xl md:text-5xl font-black text-[#2D1B4E] mb-6">
@@ -337,8 +337,92 @@ const AboutUs = () => {
                     </div>
 
                     {/* Team Slider with Arrows */}
-                    <div className="container mx-auto px-4">
+                    <div className="container mx-auto px-4 mb-20">
                         <TeamSlider />
+                    </div>
+                </section>
+
+                {/* Advisory Panel Section */}
+                <section className="py-24 bg-gray-50 overflow-hidden">
+                    <div className="container mx-auto px-4">
+                        <div className="text-center max-w-3xl mx-auto mb-20">
+                            <span className="text-sm font-black text-[#8B2C84] uppercase tracking-[0.3em] mb-4 block">Scientific Guidance</span>
+                            <h2 className="text-3xl md:text-5xl font-black text-[#2D1B4E] mb-6">Medical Advisory Panel</h2>
+                            <p className="text-lg text-gray-600 font-medium">Our formulations are guided by traditional wisdom and validated by modern medical experts.</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 max-w-6xl mx-auto">
+                            {[
+                                {
+                                    name: "Dr. Saranya",
+                                    role: "Product Formulator & Nutritionist",
+                                    image: "/doc1.jpg",
+                                    imagePos: "center",
+                                    quote: "\"Food is the first medicine.\"",
+                                    desc: "As our lead formulator, Dr. Saranya ensures every Kottravai edible product balances traditional wisdom with modern nutritional integrity.",
+                                    focusTitle: "Kottravai Expertise",
+                                    focusItems: ["Therapeutic nutrition", "Bioactive ingredients", "Preventive health"]
+                                },
+                                {
+                                    name: "Dr. N. Venthan",
+                                    role: "Integrative Medicine Specialist",
+                                    image: "/doc2.jpeg",
+                                    imagePos: "center 20%",
+                                    quote: "\"Holistic harmony through nature.\"",
+                                    desc: "An Integrative Medicine Specialist (BNYS) who brings holistic strategy to Kottravai's wellness expansion and natural restoration.",
+                                    focusTitle: "Kottravai Expertise",
+                                    focusItems: ["Holistic healing strategy", "Natural restoration", "Yoga-based wellness"]
+                                },
+                                {
+                                    name: "Dr. Mounisha",
+                                    role: "Medical Advisor (MBBS/MD)",
+                                    image: "/doc3.jpeg",
+                                    imagePos: "top",
+                                    quote: "\"Safety first, nature always.\"",
+                                    desc: "Practicing in Obstetrics & Gynaecology, Dr. Mounisha validates the safety of Kottravai products for women's clinical purity standards.",
+                                    focusTitle: "Kottravai Expertise",
+                                    focusItems: ["Clinical purity validation", "Women's health safety", "Standardized medical hygiene"]
+                                }
+                            ].map((doc, idx) => (
+                                <div key={idx} className="bg-white rounded-[2.5rem] p-8 md:p-10 shadow-xl shadow-purple-900/5 group hover:-translate-y-2 transition-all duration-500 border border-purple-50 flex flex-col h-full">
+                                    {/* Unified Professional Image UI */}
+                                    <div className="w-48 h-56 rounded-[2rem] overflow-hidden mx-auto mb-8 bg-gray-100 shadow-inner group-hover:shadow-[#8B2C84]/10 transition-all duration-500 border border-gray-100">
+                                        <img
+                                            src={doc.image}
+                                            alt={doc.name}
+                                            className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-110"
+                                            style={{ objectPosition: doc.imagePos }}
+                                        />
+                                    </div>
+
+                                    {/* Unified Content UI */}
+                                    <div className="text-center mb-8">
+                                        <h3 className="text-2xl font-black text-[#2D1B4E] mb-1">{doc.name}</h3>
+                                        <div className="inline-block bg-[#F8F0FF] px-4 py-1.5 rounded-full">
+                                            <p className="text-[#8B2C84] font-bold text-[10px] uppercase tracking-widest">{doc.role}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4 text-gray-600 text-[15px] leading-relaxed flex-grow">
+                                        <p className="font-bold text-[#8B2C84] italic text-center text-sm">{doc.quote}</p>
+                                        <p className="text-center leading-relaxed px-2 font-medium">{doc.desc}</p>
+                                    </div>
+
+                                    {/* Standardized Focus Box */}
+                                    <div className="mt-8 bg-gray-50/80 rounded-2xl p-6 border border-gray-100 group-hover:bg-purple-50/30 transition-all">
+                                        <p className="text-[10px] font-black uppercase text-[#2D1B4E] tracking-[0.2em] mb-4 opacity-50 text-center">{doc.focusTitle}</p>
+                                        <ul className="space-y-3">
+                                            {doc.focusItems.map((item, i) => (
+                                                <li key={i} className="flex items-center gap-3 text-[13px] font-bold text-[#2D1B4E]/80">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-[#8B2C84]"></div>
+                                                    {item}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </section>
 
