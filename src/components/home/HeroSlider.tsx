@@ -4,12 +4,12 @@ import { Helmet } from 'react-helmet-async';
 const SLIDES = [
     {
         id: 1,
-        image: "/hero1.jpg",
+        image: "https://kottravai.in/wp-content/uploads/2025/12/WhatsApp-Image-2025-12-30-at-4.20.58-PM-e1767163041511.jpeg",
         link: "#"
     },
     {
         id: 2,
-        image: "/hero2.jpg",
+        image: "https://kottravai.in/wp-content/uploads/2025/12/WhatsApp-Image-2025-12-31-at-10.16.33-AM-e1767163411201.jpeg",
         link: "#"
     }
 ];
@@ -17,7 +17,6 @@ const SLIDES = [
 const HeroSlider = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
-    // Simplest possible autoplay logic
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
@@ -26,111 +25,127 @@ const HeroSlider = () => {
     }, []);
 
     return (
-        <section className="kottravai-hero">
-            <Helmet>
-                <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet" />
-            </Helmet>
-
+        <section className="kottravai-hero-box">
             <style>{`
-                .kottravai-hero {
+                .kottravai-hero-box {
                     position: relative;
                     width: 100%;
-                    height: auto;
-                    background: #ffffff;
+                    height: 500px;
+                    background: #000;
                     overflow: hidden;
                     margin: 0;
-                    padding: 0;
                 }
 
-                .slide-container {
-                    display: grid;
-                    grid-template-columns: 100%;
+                .hero-container {
+                    position: relative;
                     width: 100%;
+                    height: 100%;
                 }
 
-                .slide {
-                    grid-column: 1;
-                    grid-row: 1;
+                .hero-slide {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
                     opacity: 0;
                     visibility: hidden;
-                    transition: opacity 0.8s ease-in-out, visibility 0.8s;
-                    width: 100%;
-                    height: auto;
+                    transition: opacity 1s ease-in-out, visibility 1.2s;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 }
 
-                .slide.active {
+                .hero-slide.active {
                     opacity: 1;
                     visibility: visible;
+                    z-index: 2;
                 }
 
-                .slide img {
-                    width: 100%;
-                    height: auto;
-                    display: block;
-                    margin: 0;
+                /* Background Fill */
+                .hero-blur-fill {
+                    position: absolute;
+                    inset: -20px;
+                    background-size: cover;
+                    background-position: center;
+                    filter: blur(30px) brightness(0.6);
+                    transform: scale(1.1);
+                    z-index: 1;
+                }
+
+                /* Main Centered Image */
+                .hero-main-image {
+                    position: relative;
+                    max-width: 100%;
+                    max-height: 100%;
+                    object-fit: contain;
+                    z-index: 2;
+                    box-shadow: 0 0 40px rgba(0,0,0,0.5);
                 }
 
                 /* Dots */
-                .kottravai-dots {
+                .hero-dots {
                     position: absolute;
-                    bottom: 20px;
+                    bottom: 25px;
                     left: 50%;
                     transform: translateX(-50%);
                     z-index: 10;
                     display: flex;
-                    gap: 10px;
+                    gap: 12px;
                 }
 
-                .dot {
-                    width: 12px;
-                    height: 12px;
-                    border: 2px solid white;
+                .hero-dot {
+                    width: 10px;
+                    height: 10px;
                     border-radius: 50%;
                     cursor: pointer;
-                    background: rgba(255,255,255,0.4);
+                    background: rgba(255,255,255,0.3);
+                    border: 1px solid rgba(255,255,255,0.4);
                     transition: all 0.3s;
                 }
 
-                .dot.active {
-                    background: white;
-                    transform: scale(1.2);
+                .hero-dot.active {
+                    background: #fff;
+                    transform: scale(1.3);
                 }
 
                 @media (max-width: 768px) {
-                    .kottravai-hero {
-                        height: auto;
-                        aspect-ratio: 3/2;
-                    }
-                    .slide img {
-                        object-fit: contain;
-                        background: #f9f9f9;
+                    .kottravai-hero-box {
+                        height: 350px;
                     }
                 }
             `}</style>
 
-            <div className="slide-container">
+            <div className="hero-container">
                 {SLIDES.map((slide, index) => (
                     <div
                         key={slide.id}
-                        className={`slide ${index === currentIndex ? 'active' : ''}`}
+                        className={`hero-slide ${index === currentIndex ? 'active' : ''}`}
                     >
-                        <a href={slide.link}>
+                        {/* Background Layer */}
+                        <div
+                            className="hero-blur-fill"
+                            style={{ backgroundImage: `url(${slide.image})` }}
+                        />
+
+                        {/* Foreground Layer */}
+                        <a href={slide.link} className="relative h-full flex items-center justify-center">
                             <img
                                 src={slide.image}
-                                alt="Hero Banner"
+                                alt="Banner"
+                                className="hero-main-image"
                                 referrerPolicy="no-referrer"
-                                loading="eager"
                             />
                         </a>
                     </div>
                 ))}
             </div>
 
-            <div className="kottravai-dots">
+            <div className="hero-dots">
                 {SLIDES.map((_, index) => (
                     <div
                         key={index}
-                        className={`dot ${index === currentIndex ? 'active' : ''}`}
+                        className={`hero-dot ${index === currentIndex ? 'active' : ''}`}
                         onClick={() => setCurrentIndex(index)}
                     />
                 ))}
