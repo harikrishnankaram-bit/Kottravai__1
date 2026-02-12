@@ -12,6 +12,8 @@ import { categories } from '@/data/products';
 import toast from 'react-hot-toast';
 
 
+import { supabase } from '@/utils/supabaseClient';
+
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { products, addProduct, deleteProduct, updateProduct, updateStock } = useProducts();
@@ -158,39 +160,88 @@ const AdminDashboard = () => {
     const [mainImage, setMainImage] = useState<string>('');
     const [otherImages, setOtherImages] = useState<string[]>([]);
 
-    // File Handlers
-    const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setMainImage(reader.result as string);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+    const [isUploading, setIsUploading] = useState(false);
 
-    const handleNewsImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setNewsForm({ ...newsForm, image: reader.result as string });
-            };
-            reader.readAsDataURL(file);
-        }
-    };
+    const uploadFileToSupabase = async (file: File, bucket = 'products') => {
+        setIsUploading(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const filePath = `${fileName}`;
 
-    const handleOtherImagesUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (files) {
-            Array.from(files).forEach(file => {
+            // Check if Supabase client is configured
+            if (!import.meta.env.VITE_SUPABASE_URL) {
+                // Fallback for demo/dev mode without Supabase connection
+                console.warn("Supabase not configured, falling back to Base64");
+                return new Promise<string>((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result as string);
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            const { error: uploadError } = await supabase.storage
+                .from(bucket)
+                .upload(filePath, file);
+
+            if (uploadError) {
+                // If it's a "bucket not found" error, alert the user specificially
+                if (uploadError.message.includes("Bucket not found") || uploadError.message.includes("not found")) {
+                    toast.error(`Storage Bucket '${bucket}' missing! Create it in Supabase > Storage.`);
+                }
+                throw uploadError;
+            }
+
+            const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
+            return data.publicUrl;
+        } catch (error: any) {
+            toast.error("Image Upload Failed: " + error.message);
+            console.error("Upload error:", error);
+            // Fallback to Base64 if upload fails (so user can still save, though not recommended for production)
+            return new Promise<string>((resolve) => {
                 const reader = new FileReader();
-                reader.onloadend = () => {
-                    setOtherImages(prev => [...prev, reader.result as string]);
-                };
+                reader.onloadend = () => resolve(reader.result as string);
                 reader.readAsDataURL(file);
             });
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    // File Handlers
+    const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            toast.loading("Uploading Main Image...", { id: 'upload-main' });
+            const url = await uploadFileToSupabase(file);
+            if (url) {
+                setMainImage(url);
+                toast.success("Main Image Uploaded!", { id: 'upload-main' });
+            } else {
+                toast.error("Upload failed", { id: 'upload-main' });
+            }
+        }
+    };
+
+    const handleNewsImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const url = await uploadFileToSupabase(file, 'news'); // Use 'news' bucket or default
+            if (url) setNewsForm({ ...newsForm, image: url });
+        }
+    };
+
+    const handleOtherImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (files && files.length > 0) {
+            toast.loading(`Uploading ${files.length} images...`, { id: 'upload-gallery' });
+            for (let i = 0; i < files.length; i++) {
+                const url = await uploadFileToSupabase(files[i]);
+                if (url) {
+                    setOtherImages(prev => [...prev, url]);
+                }
+            }
+            toast.success("Gallery Images Uploaded!", { id: 'upload-gallery' });
         }
     };
 
@@ -420,14 +471,11 @@ const AdminDashboard = () => {
         setReviewForm({ name: '', role: '', content: '', image: '', rating: 5 });
     };
 
-    const handleReviewImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleReviewImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setReviewForm({ ...reviewForm, image: reader.result as string });
-            };
-            reader.readAsDataURL(file);
+            const url = await uploadFileToSupabase(file, 'reviews');
+            if (url) setReviewForm({ ...reviewForm, image: url });
         }
     };
 
@@ -463,14 +511,11 @@ const AdminDashboard = () => {
         setPartnerForm({ name: '', logo: '' });
     };
 
-    const handlePartnerLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handlePartnerLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPartnerForm({ ...partnerForm, logo: reader.result as string });
-            };
-            reader.readAsDataURL(file);
+            const url = await uploadFileToSupabase(file, 'partners');
+            if (url) setPartnerForm({ ...partnerForm, logo: url });
         }
     };
 
