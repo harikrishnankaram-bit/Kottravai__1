@@ -12,7 +12,7 @@ import { categories } from '@/data/products';
 import toast from 'react-hot-toast';
 
 
-import { supabase } from '@/utils/supabaseClient';
+
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
