@@ -20,7 +20,7 @@ const b2bTestimonials: Review[] = [
         name: "Kaliappan K",
         role: "Founder , Sprint 6 & Nammaloo",
         content: "Kottravai has been a reliable B2B partner for us. Their coconut shell products stand out for quality, consistency, and premium finish. Our corporate clients appreciated the sustainability angle, and repeat orders came in quickly",
-        image: "https://kottravai.in/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-19-at-2.14.37-PM.jpeg",
+        image: "/b1.jpeg",
         page: 'b2b',
         rating: 5
     },
@@ -29,7 +29,7 @@ const b2bTestimonials: Review[] = [
         name: "Jaya Shakthi",
         role: "Founder , CDIX",
         content: "Working with Kottravai has been seamless. From sampling to bulk delivery, their team maintained quality and timelines. The handcrafted coconut shell products added a unique, eco-conscious value to our corporate gifting range.",
-        image: "https://kottravai.in/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-19-at-2.18.37-PM.jpeg",
+        image: "/b2.jpeg",
         page: 'b2b',
         rating: 5
     },
@@ -38,7 +38,7 @@ const b2bTestimonials: Review[] = [
         name: "Radha Lakshmi",
         role: "CEO , SPIKRA",
         content: "Kottravai’s terracotta jewellery reflects responsible craftsmanship. The natural materials, artisan-led production, and ethical sourcing aligned perfectly with our sustainability goals.",
-        image: "https://kottravai.in/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-19-at-2.47.55-PM.jpeg",
+        image: "/b3.jpeg",
         page: 'b2b',
         rating: 5
     }

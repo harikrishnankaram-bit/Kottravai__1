@@ -280,13 +280,13 @@ const B2B = () => {
                                     step: "Step 2",
                                     title: "Curate Your Hamper",
                                     desc: "Choose from our catalog or build a fully custom hamper that matches your brand and event theme.",
-                                    img: "https://kottravai.in/wp-content/uploads/2025/12/custom_hamper_1766820755784.jpg"
+                                    img: "https://images.unsplash.com/photo-1513201099705-a9746e1e201f?q=80&w=1000&auto=format&fit=crop"
                                 },
                                 {
                                     step: "Step 3",
                                     title: "Branding & Personalization",
                                     desc: "Add your logo, event name, custom notes, and personalized messages to every gift.",
-                                    img: "https://kottravai.in/wp-content/uploads/2025/12/corporate_hamper_1766820721253.jpg"
+                                    img: "https://images.unsplash.com/photo-1607344645866-009c320b63e0?q=80&w=1000&auto=format&fit=crop"
                                 },
                                 {
                                     step: "Step 4",
