@@ -1767,18 +1767,20 @@ const AdminDashboard = () => {
                                                                     multiple
                                                                     className="hidden"
                                                                     accept="image/*"
-                                                                    onChange={(e) => {
+                                                                    onChange={async (e) => {
                                                                         const files = e.target.files;
-                                                                        if (files) {
-                                                                            Array.from(files).forEach(file => {
-                                                                                const reader = new FileReader();
-                                                                                reader.onloadend = () => {
-                                                                                    const newVariants = [...formData.variants];
-                                                                                    newVariants[index].images = [...(newVariants[index].images || []), reader.result as string];
-                                                                                    setFormData({ ...formData, variants: newVariants });
-                                                                                };
-                                                                                reader.readAsDataURL(file);
-                                                                            });
+                                                                        if (files && files.length > 0) {
+                                                                            toast.loading(`Uploading ${files.length} variant images...`, { id: 'upload-variant' });
+                                                                            const newImages: string[] = [];
+                                                                            for (let i = 0; i < files.length; i++) {
+                                                                                const url = await uploadFileToSupabase(files[i]);
+                                                                                if (url) newImages.push(url);
+                                                                            }
+
+                                                                            const newVariants = [...formData.variants];
+                                                                            newVariants[index].images = [...(newVariants[index].images || []), ...newImages];
+                                                                            setFormData({ ...formData, variants: newVariants });
+                                                                            toast.success("Variant Images Uploaded!", { id: 'upload-variant' });
                                                                         }
                                                                     }}
                                                                 />
@@ -1893,9 +1895,10 @@ const AdminDashboard = () => {
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-6 py-2.5 bg-[#2D1B4E] text-white rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors shadow-lg"
+                                        disabled={isUploading}
+                                        className={`px-6 py-2.5 bg-[#2D1B4E] text-white rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors shadow-lg ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     >
-                                        {editingId ? 'Save Changes' : 'Create Product'}
+                                        {isUploading ? 'Uploading Images...' : (editingId ? 'Save Changes' : 'Create Product')}
                                     </button>
                                 </div>
                             </form>
