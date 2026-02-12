@@ -3,7 +3,19 @@ import axios from 'axios';
 import { Product, categories } from '@/data/products';
 import { safeSetItem, safeGetItem } from '@/utils/storage';
 
-const API_URL = `${import.meta.env.VITE_API_URL || 'https://kottravai.in/api'}/products`;
+const getBaseUrl = () => {
+    if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+    if (typeof window !== 'undefined') {
+        const hostname = window.location.hostname;
+        if (hostname === 'localhost' || hostname === '127.0.0.1') {
+            return 'http://localhost:5000/api';
+        }
+        return '/api'; // Use relative path for production (proxy handles it)
+    }
+    return 'https://kottravai.in/api';
+};
+
+const API_URL = `${getBaseUrl()}/products`;
 interface ProductContextType {
     products: Product[];
     addProduct: (product: Product) => Promise<void>;
