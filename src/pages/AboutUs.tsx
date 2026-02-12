@@ -536,11 +536,6 @@ const teamMembers = [
         name: "Jayanthi",
         role: "QC Head",
         image: "/team/member-4.jpg"
-    },
-    {
-        name: "Fatima Ahmed",
-        role: "Quality Control",
-        image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=400"
     }
 ];
 
