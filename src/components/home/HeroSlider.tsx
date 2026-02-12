@@ -172,10 +172,11 @@ const HeroSlider = () => {
                 .kottravai-banner {
                     position: relative;
                     width: 100%;
-                    height: 600px; /* Precise height from user */
+                    height: auto;
+                    aspect-ratio: 24/10; /* Maintains full image visibility */
                     overflow: hidden;
                     font-family: 'Raleway', sans-serif;
-                    background-color: #f5f5f5;
+                    background-color: #ffffff;
                 }
 
                 .kottravai-banner * {
@@ -215,14 +216,14 @@ const HeroSlider = () => {
                     position: relative;
                 }
 
-                /* Background Image - The "Cover" fix */
+                /* Background Image - The "Fit" fix */
                 .kottravai-banner .banner-bg {
                     position: absolute;
                     top: 0;
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    object-fit: cover;
+                    object-fit: contain; /* No zooming, shows whole image */
                     object-position: center;
                 }
 
