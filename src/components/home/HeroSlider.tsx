@@ -172,12 +172,10 @@ const HeroSlider = () => {
                 .kottravai-banner {
                     position: relative;
                     width: 100%;
-                    height: auto;
-                    aspect-ratio: 21/9;
-                    max-height: 80vh;
+                    height: 500px; /* Standard professional banner height */
                     overflow: hidden;
                     font-family: 'Raleway', sans-serif;
-                    background-color: #ffffff;
+                    background-color: #f5f5f5;
                 }
 
                 .kottravai-banner * {
@@ -200,7 +198,6 @@ const HeroSlider = () => {
                     height: 100%;
                     display: flex;
                     z-index: 1;
-                    /* Transition handled via JS inline styles mostly */
                     transition: transform 0.8s ease-in-out;
                 }
 
@@ -218,14 +215,14 @@ const HeroSlider = () => {
                     position: relative;
                 }
 
-                /* Background Image */
+                /* Background Image - The "Cover" fix */
                 .kottravai-banner .banner-bg {
                     position: absolute;
                     top: 0;
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    object-fit: contain;
+                    object-fit: cover;
                     object-position: center;
                 }
 
