@@ -173,11 +173,11 @@ const HeroSlider = () => {
                     position: relative;
                     width: 100%;
                     height: auto;
-                    aspect-ratio: 16/7;
-                    max-height: 85vh;
+                    aspect-ratio: 21/9;
+                    max-height: 80vh;
                     overflow: hidden;
                     font-family: 'Raleway', sans-serif;
-                    background-color: #f5f5f5;
+                    background-color: #ffffff;
                 }
 
                 .kottravai-banner * {
@@ -220,9 +220,13 @@ const HeroSlider = () => {
 
                 /* Background Image */
                 .kottravai-banner .banner-bg {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
                     width: 100%;
                     height: 100%;
-                    object-fit: cover;
+                    object-fit: contain;
+                    object-position: center;
                 }
 
                 /* Dot Navigation */
