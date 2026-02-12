@@ -172,7 +172,7 @@ const HeroSlider = () => {
                 .kottravai-banner {
                     position: relative;
                     width: 100%;
-                    height: 500px; /* Standard professional banner height */
+                    height: 600px; /* Precise height from user */
                     overflow: hidden;
                     font-family: 'Raleway', sans-serif;
                     background-color: #f5f5f5;
