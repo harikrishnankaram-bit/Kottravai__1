@@ -4,12 +4,12 @@ import { Helmet } from 'react-helmet-async';
 const SLIDES = [
     {
         id: 1,
-        image: "https://kottravai.in/wp-content/uploads/2025/12/WhatsApp-Image-2025-12-30-at-4.20.58-PM-e1767163041511.jpeg",
+        image: "/hero1.jpg",
         link: "#"
     },
     {
         id: 2,
-        image: "https://kottravai.in/wp-content/uploads/2025/12/WhatsApp-Image-2025-12-31-at-10.16.33-AM-e1767163411201.jpeg",
+        image: "/hero2.jpg",
         link: "#"
     }
 ];
@@ -65,7 +65,8 @@ const HeroSlider = () => {
                 .slide img {
                     width: 100%;
                     height: 100%;
-                    object-fit: cover;
+                    object-fit: contain;
+                    background: #ffffff;
                     display: block;
                 }
 
