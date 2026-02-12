@@ -38,10 +38,7 @@ const HeroSlider = () => {
         // Set initial positions
         slideRefs.current.forEach((slide, index) => {
             if (slide) {
-                // Ensure base styles
                 slide.style.transition = 'transform 0.8s ease-in-out';
-                slide.style.display = 'flex'; // Ensure flex from CSS is kept
-
                 if (index === 0) {
                     slide.classList.add('active');
                     slide.style.transform = 'translateX(0)';
@@ -55,7 +52,6 @@ const HeroSlider = () => {
         });
 
         startInterval();
-
         return () => stopInterval();
     }, []);
 
@@ -77,12 +73,10 @@ const HeroSlider = () => {
 
     const showSlide = (index: number, direction: 'next' | 'prev') => {
         if (isAnimatingRef.current) return;
-
         const currentIdx = currentIndexRef.current;
         if (index === currentIdx) return;
 
         setIsAnimating(true);
-
         const currentSlide = slideRefs.current[currentIdx];
         const nextSlide = slideRefs.current[index];
 
@@ -96,70 +90,47 @@ const HeroSlider = () => {
         currentSlide.style.transition = 'transform 0.8s ease-in-out';
 
         if (direction === 'next') {
-            // Prepare next slide on Right
             nextSlide.style.transform = 'translateX(100%)';
-            nextSlide.style.zIndex = '2';
-            currentSlide.style.zIndex = '1';
-
-            // Force reflow
-            void nextSlide.offsetWidth;
+            void nextSlide.offsetWidth; // Force reflow
             nextSlide.style.transition = 'transform 0.8s ease-in-out';
 
-            // Animate
             requestAnimationFrame(() => {
-                if (currentSlide) currentSlide.style.transform = 'translateX(-100%)';
-                if (nextSlide) nextSlide.style.transform = 'translateX(0)';
+                currentSlide.style.transform = 'translateX(-100%)';
+                nextSlide.style.transform = 'translateX(0)';
             });
         } else {
-            // Prev
-            // Prepare next slide on Left
             nextSlide.style.transform = 'translateX(-100%)';
-            nextSlide.style.zIndex = '2';
-            currentSlide.style.zIndex = '1';
-
-            // Force reflow
-            void nextSlide.offsetWidth;
+            void nextSlide.offsetWidth; // Force reflow
             nextSlide.style.transition = 'transform 0.8s ease-in-out';
 
-            // Animate
             requestAnimationFrame(() => {
-                if (currentSlide) currentSlide.style.transform = 'translateX(100%)';
-                if (nextSlide) nextSlide.style.transform = 'translateX(0)';
+                currentSlide.style.transform = 'translateX(100%)';
+                nextSlide.style.transform = 'translateX(0)';
             });
         }
 
-        // Update state after animation
         setTimeout(() => {
-            if (currentSlide) {
-                currentSlide.classList.remove('active');
-                // Reset styling for the inactive slide to ensure it stays invisible/formatted correctly
-                // currentSlide.style.transform = 'translateX(100%)'; // Optional cleanup, but keeping it where it landed is generally fine until next usage
-            }
-            if (nextSlide) {
-                nextSlide.classList.add('active');
-            }
+            currentSlide.classList.remove('active');
+            nextSlide.classList.add('active');
             setCurrentIndex(index);
             setIsAnimating(false);
         }, 800);
     };
 
     const handleNext = () => {
-        const current = currentIndexRef.current;
-        const nextIndex = (current + 1) >= SLIDES.length ? 0 : current + 1;
+        const nextIndex = (currentIndexRef.current + 1) % SLIDES.length;
         showSlide(nextIndex, 'next');
     };
 
     const handleDotClick = (index: number) => {
-        const current = currentIndexRef.current;
-        if (index === current || isAnimatingRef.current) return;
-
-        const dir = index > current ? 'next' : 'prev';
+        if (index === currentIndexRef.current || isAnimatingRef.current) return;
+        const dir = index > currentIndexRef.current ? 'next' : 'prev';
         showSlide(index, dir);
         resetInterval();
     };
 
     return (
-        <>
+        <section className="kottravai-banner">
             <Helmet>
                 <link
                     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Raleway:wght@300;400;500&display=swap"
@@ -172,11 +143,10 @@ const HeroSlider = () => {
                 .kottravai-banner {
                     position: relative;
                     width: 100%;
-                    height: auto;
-                    aspect-ratio: 24/10; /* Maintains full image visibility */
+                    height: 600px; /* Precise height from user */
                     overflow: hidden;
                     font-family: 'Raleway', sans-serif;
-                    background-color: #ffffff;
+                    background-color: #f5f5f5;
                 }
 
                 .kottravai-banner * {
@@ -200,9 +170,11 @@ const HeroSlider = () => {
                     display: flex;
                     z-index: 1;
                     transition: transform 0.8s ease-in-out;
+                    transform: translateX(100%);
                 }
 
                 .kottravai-banner .banner-slide.active {
+                    transform: translateX(0);
                     z-index: 2;
                 }
 
@@ -216,14 +188,14 @@ const HeroSlider = () => {
                     position: relative;
                 }
 
-                /* Background Image - The "Fit" fix */
+                /* Background Image */
                 .kottravai-banner .banner-bg {
                     position: absolute;
                     top: 0;
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    object-fit: contain; /* No zooming, shows whole image */
+                    object-fit: cover;
                     object-position: center;
                 }
 
@@ -272,36 +244,34 @@ const HeroSlider = () => {
                 }
             `}</style>
 
-            <section className="kottravai-banner">
-                <div className="banner-container">
-                    {SLIDES.map((slide, index) => (
-                        <div
-                            key={slide.id}
-                            className={`banner-slide`}
-                            ref={(el) => (slideRefs.current[index] = el)}
-                        >
-                            <a href={slide.link} className="banner-link">
-                                <img
-                                    src={slide.image}
-                                    alt={`Banner ${index + 1}`}
-                                    className="banner-bg"
-                                />
-                            </a>
-                        </div>
-                    ))}
-                </div>
+            <div className="banner-container">
+                {SLIDES.map((slide, index) => (
+                    <div
+                        key={slide.id}
+                        className="banner-slide"
+                        ref={(el) => (slideRefs.current[index] = el)}
+                    >
+                        <a href={slide.link} className="banner-link">
+                            <img
+                                src={slide.image}
+                                alt={`Banner ${index + 1}`}
+                                className="banner-bg"
+                            />
+                        </a>
+                    </div>
+                ))}
+            </div>
 
-                <div className="banner-nav">
-                    {SLIDES.map((_, index) => (
-                        <div
-                            key={index}
-                            className={`banner-dot ${index === currentIndex ? 'active' : ''}`}
-                            onClick={() => handleDotClick(index)}
-                        ></div>
-                    ))}
-                </div>
-            </section>
-        </>
+            <div className="banner-nav">
+                {SLIDES.map((_, index) => (
+                    <div
+                        key={index}
+                        className={`banner-dot ${index === currentIndex ? 'active' : ''}`}
+                        onClick={() => handleDotClick(index)}
+                    ></div>
+                ))}
+            </div>
+        </section>
     );
 };
 
