@@ -92,11 +92,11 @@ const Cart = () => {
                                     </div>
                                     <div className="flex justify-between text-gray-600">
                                         <span>Shipping</span>
-                                        <span className="text-green-600 font-medium">Free</span>
+                                        <span className="font-medium text-gray-800">₹60</span>
                                     </div>
                                     <div className="pt-3 border-t border-gray-200 flex justify-between font-bold text-lg text-[#1A1A1A]">
                                         <span>Total</span>
-                                        <span>₹{cartTotal}</span>
+                                        <span>₹{cartTotal + 60}</span>
                                     </div>
                                 </div>
 
