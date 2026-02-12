@@ -35,50 +35,50 @@ const HeroSlider = () => {
                 .kottravai-hero {
                     position: relative;
                     width: 100%;
-                    height: 600px;
-                    background: #f5f5f5;
+                    height: auto;
+                    background: #ffffff;
                     overflow: hidden;
+                    margin: 0;
+                    padding: 0;
                 }
 
                 .slide-container {
-                    position: relative;
+                    display: grid;
+                    grid-template-columns: 100%;
                     width: 100%;
-                    height: 100%;
                 }
 
                 .slide {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
+                    grid-column: 1;
+                    grid-row: 1;
                     opacity: 0;
-                    transition: opacity 1s ease-in-out;
-                    z-index: 1;
+                    visibility: hidden;
+                    transition: opacity 0.8s ease-in-out, visibility 0.8s;
+                    width: 100%;
+                    height: auto;
                 }
 
                 .slide.active {
                     opacity: 1;
-                    z-index: 2;
+                    visibility: visible;
                 }
 
                 .slide img {
                     width: 100%;
-                    height: 100%;
-                    object-fit: contain;
-                    background: #ffffff;
+                    height: auto;
                     display: block;
+                    margin: 0;
                 }
 
                 /* Dots */
                 .kottravai-dots {
                     position: absolute;
-                    bottom: 30px;
+                    bottom: 20px;
                     left: 50%;
                     transform: translateX(-50%);
                     z-index: 10;
                     display: flex;
-                    gap: 12px;
+                    gap: 10px;
                 }
 
                 .dot {
