@@ -160,88 +160,42 @@ const AdminDashboard = () => {
     const [mainImage, setMainImage] = useState<string>('');
     const [otherImages, setOtherImages] = useState<string[]>([]);
 
-    const [isUploading, setIsUploading] = useState(false);
 
-    const uploadFileToSupabase = async (file: File, bucket = 'products') => {
-        setIsUploading(true);
-        try {
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-            const filePath = `${fileName}`;
 
-            // Check if Supabase client is configured
-            if (!import.meta.env.VITE_SUPABASE_URL) {
-                // Fallback for demo/dev mode without Supabase connection
-                console.warn("Supabase not configured, falling back to Base64");
-                return new Promise<string>((resolve) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result as string);
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            const { error: uploadError } = await supabase.storage
-                .from(bucket)
-                .upload(filePath, file);
-
-            if (uploadError) {
-                // If it's a "bucket not found" error, alert the user specificially
-                if (uploadError.message.includes("Bucket not found") || uploadError.message.includes("not found")) {
-                    toast.error(`Storage Bucket '${bucket}' missing! Create it in Supabase > Storage.`);
-                }
-                throw uploadError;
-            }
-
-            const { data } = supabase.storage.from(bucket).getPublicUrl(filePath);
-            return data.publicUrl;
-        } catch (error: any) {
-            toast.error("Image Upload Failed: " + error.message);
-            console.error("Upload error:", error);
-            // Fallback to Base64 if upload fails (so user can still save, though not recommended for production)
-            return new Promise<string>((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.readAsDataURL(file);
-            });
-        } finally {
-            setIsUploading(false);
-        }
+    // Base64 helper (reverted from storage upload)
+    const convertToBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = error => reject(error);
+        });
     };
 
     // File Handlers
     const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            toast.loading("Uploading Main Image...", { id: 'upload-main' });
-            const url = await uploadFileToSupabase(file);
-            if (url) {
-                setMainImage(url);
-                toast.success("Main Image Uploaded!", { id: 'upload-main' });
-            } else {
-                toast.error("Upload failed", { id: 'upload-main' });
-            }
+            const base64 = await convertToBase64(file);
+            setMainImage(base64);
         }
     };
 
     const handleNewsImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const url = await uploadFileToSupabase(file, 'news'); // Use 'news' bucket or default
-            if (url) setNewsForm({ ...newsForm, image: url });
+            const base64 = await convertToBase64(file);
+            setNewsForm({ ...newsForm, image: base64 });
         }
     };
 
     const handleOtherImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (files && files.length > 0) {
-            toast.loading(`Uploading ${files.length} images...`, { id: 'upload-gallery' });
-            for (let i = 0; i < files.length; i++) {
-                const url = await uploadFileToSupabase(files[i]);
-                if (url) {
-                    setOtherImages(prev => [...prev, url]);
-                }
-            }
-            toast.success("Gallery Images Uploaded!", { id: 'upload-gallery' });
+        if (files) {
+            Array.from(files).forEach(async (file) => {
+                const base64 = await convertToBase64(file);
+                setOtherImages(prev => [...prev, base64]);
+            });
         }
     };
 
@@ -474,8 +428,8 @@ const AdminDashboard = () => {
     const handleReviewImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const url = await uploadFileToSupabase(file, 'reviews');
-            if (url) setReviewForm({ ...reviewForm, image: url });
+            const base64 = await convertToBase64(file);
+            setReviewForm({ ...reviewForm, image: base64 });
         }
     };
 
@@ -514,8 +468,8 @@ const AdminDashboard = () => {
     const handlePartnerLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            const url = await uploadFileToSupabase(file, 'partners');
-            if (url) setPartnerForm({ ...partnerForm, logo: url });
+            const base64 = await convertToBase64(file);
+            setPartnerForm({ ...partnerForm, logo: base64 });
         }
     };
 
@@ -1769,18 +1723,13 @@ const AdminDashboard = () => {
                                                                     accept="image/*"
                                                                     onChange={async (e) => {
                                                                         const files = e.target.files;
-                                                                        if (files && files.length > 0) {
-                                                                            toast.loading(`Uploading ${files.length} variant images...`, { id: 'upload-variant' });
-                                                                            const newImages: string[] = [];
-                                                                            for (let i = 0; i < files.length; i++) {
-                                                                                const url = await uploadFileToSupabase(files[i]);
-                                                                                if (url) newImages.push(url);
-                                                                            }
-
-                                                                            const newVariants = [...formData.variants];
-                                                                            newVariants[index].images = [...(newVariants[index].images || []), ...newImages];
-                                                                            setFormData({ ...formData, variants: newVariants });
-                                                                            toast.success("Variant Images Uploaded!", { id: 'upload-variant' });
+                                                                        if (files) {
+                                                                            Array.from(files).forEach(async (file) => {
+                                                                                const base64 = await convertToBase64(file);
+                                                                                const newVariants = [...formData.variants];
+                                                                                newVariants[index].images = [...(newVariants[index].images || []), base64];
+                                                                                setFormData({ ...formData, variants: newVariants });
+                                                                            });
                                                                         }
                                                                     }}
                                                                 />
@@ -1895,10 +1844,9 @@ const AdminDashboard = () => {
                                     </button>
                                     <button
                                         type="submit"
-                                        disabled={isUploading}
-                                        className={`px-6 py-2.5 bg-[#2D1B4E] text-white rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors shadow-lg ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className="px-6 py-2.5 bg-[#2D1B4E] text-white rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors shadow-lg"
                                     >
-                                        {isUploading ? 'Uploading Images...' : (editingId ? 'Save Changes' : 'Create Product')}
+                                        {editingId ? 'Save Changes' : 'Create Product'}
                                     </button>
                                 </div>
                             </form>
