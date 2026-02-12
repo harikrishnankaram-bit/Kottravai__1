@@ -575,7 +575,7 @@ const Shop = () => {
                                                         <div className="text-[12px] md:text-sm font-black text-[#b5128f]">
                                                             {product.isCustomRequest ? (
                                                                 <span className="text-[10px] uppercase tracking-widest text-[#8E2A8B]">Price on Request</span>
-                                                            ) : (product.variants && product.variants.length > 0) ? (
+                                                            ) : (product.variants && product.variants.length > 0) || Number(product.price) === 0 ? (
                                                                 <span className="text-[11px] md:text-[13px] uppercase tracking-widest text-[#b5128f] font-black">View Price</span>
                                                             ) : (
                                                                 <>₹{Number(product.price).toLocaleString('en-IN')}</>
@@ -583,7 +583,7 @@ const Shop = () => {
                                                         </div>
 
                                                         {/* Modern Icon-based Add to Cart */}
-                                                        {product.variants && product.variants.length > 0 ? (
+                                                        {(product.variants && product.variants.length > 0) || Number(product.price) === 0 ? (
                                                             <Link
                                                                 to={`/product/${product.slug}`}
                                                                 className="h-10 px-3 rounded-xl bg-[#FAF9F6] text-[#2D1B4E] hover:bg-[#b5128f] hover:text-white border border-gray-100 flex items-center justify-center gap-1.5 transition-all duration-300 relative z-20 group/btn"

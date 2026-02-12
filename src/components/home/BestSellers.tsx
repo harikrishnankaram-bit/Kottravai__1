@@ -106,7 +106,7 @@ const BestSellers = () => {
                                                     </Link>
                                                 ) : (
                                                     <>
-                                                        {product.variants && product.variants.length > 0 ? (
+                                                        {(product.variants && product.variants.length > 0) || Number(product.price) === 0 ? (
                                                             <Link to={`/product/${product.slug}`} className="p-2 md:p-3 bg-white text-gray-900 rounded-full hover:bg-[#8E2A8B] hover:text-white transition-colors shadow-lg">
                                                                 <Eye size={18} className="md:w-5 md:h-5" />
                                                             </Link>
@@ -125,7 +125,7 @@ const BestSellers = () => {
                                                                 {isInCart ? <Check size={18} className="md:w-5 md:h-5" /> : <ShoppingCart size={18} className="md:w-5 md:h-5" />}
                                                             </button>
                                                         )}
-                                                        {!(product.variants && product.variants.length > 0) && (
+                                                        {!((product.variants && product.variants.length > 0) || Number(product.price) === 0) && (
                                                             <Link to={`/product/${product.slug}`} className="p-2 md:p-3 bg-white text-gray-900 rounded-full hover:bg-[#8E2A8B] hover:text-white transition-colors shadow-lg">
                                                                 <Eye size={18} className="md:w-5 md:h-5" />
                                                             </Link>
@@ -152,7 +152,7 @@ const BestSellers = () => {
                                         <div className="text-secondary font-bold text-sm md:text-lg">
                                             {product.isCustomRequest ? (
                                                 <span className="text-[10px] md:text-sm italic bg-purple-50 px-2 py-0.5 md:py-1 rounded">Price on Request</span>
-                                            ) : (product.variants && product.variants.length > 0) ? (
+                                            ) : (product.variants && product.variants.length > 0) || Number(product.price) === 0 ? (
                                                 <span className="text-[11px] md:text-[13px] uppercase tracking-widest text-[#8E2A8B] font-black">View Price</span>
                                             ) : (
                                                 <>₹{Number(product.price).toLocaleString('en-IN')}</>

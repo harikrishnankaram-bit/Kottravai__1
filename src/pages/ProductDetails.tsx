@@ -369,10 +369,10 @@ const ProductDetails = () => {
                                     </div>
                                     <h4 className="font-bold text-[#2D1B4E] group-hover:text-[#b5128f] transition-colors truncate px-2">{rel.name}</h4>
                                     <div className="text-[#b5128f] font-black mt-1 px-2">
-                                        {rel.variants && rel.variants.length > 0 ? (
-                                            <span className="text-[10px] uppercase tracking-widest">View Price</span>
+                                        {(rel.variants && rel.variants.length > 0) || Number(rel.price) === 0 ? (
+                                            <span className="text-[10px] uppercase tracking-widest font-black">View Price</span>
                                         ) : (
-                                            <>₹{rel.price}</>
+                                            <>₹{Number(rel.price).toLocaleString('en-IN')}</>
                                         )}
                                     </div>
                                 </Link>

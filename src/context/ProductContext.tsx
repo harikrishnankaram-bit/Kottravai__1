@@ -58,18 +58,12 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
             const response = await axios.get(API_URL);
             const mappedProducts = response.data.map(mapProductFromDB);
 
-            // High-Performance Check: Avoid full stringify on large payloads (base64 images found)
-            const isDataDifferent = products.length !== mappedProducts.length ||
-                (products.length > 0 && products[0].id !== mappedProducts[0]?.id);
-
-            if (isDataDifferent) {
-                setProducts(mappedProducts);
-                // Update local storage in the background to avoid blocking the main thread
-                setTimeout(() => {
-                    safeSetItem('kottravai_cache_products', JSON.stringify(mappedProducts));
-                    safeSetItem('kottravai_cache_time', Date.now().toString());
-                }, 0);
-            }
+            setProducts(mappedProducts);
+            // Update local storage in the background to avoid blocking the main thread
+            setTimeout(() => {
+                safeSetItem('kottravai_cache_products', JSON.stringify(mappedProducts));
+                safeSetItem('kottravai_cache_time', Date.now().toString());
+            }, 0);
         } catch (error) {
             console.error("Failed to fetch products from API", error);
         } finally {
