@@ -572,14 +572,11 @@ const Shop = () => {
                                                     </h3>
 
                                                     <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-50 w-full px-1">
-                                                        <div className="text-lg font-black text-[#b5128f]">
+                                                        <div className="text-[12px] md:text-sm font-black text-[#b5128f]">
                                                             {product.isCustomRequest ? (
                                                                 <span className="text-[10px] uppercase tracking-widest text-[#8E2A8B]">Price on Request</span>
                                                             ) : product.variants && product.variants.length > 0 ? (
-                                                                <span className="flex flex-col">
-                                                                    <span className="text-[10px] uppercase tracking-tighter opacity-70">Starting From</span>
-                                                                    <span>₹{Math.min(...product.variants.map(v => v.price)).toLocaleString('en-IN')}</span>
-                                                                </span>
+                                                                <span className="text-[11px] md:text-[13px] uppercase tracking-widest text-[#b5128f] font-black">View Price</span>
                                                             ) : (
                                                                 <>₹{parseFloat(product.price.toString()).toLocaleString('en-IN')}</>
                                                             )}

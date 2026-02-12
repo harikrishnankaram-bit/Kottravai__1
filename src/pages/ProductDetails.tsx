@@ -368,7 +368,13 @@ const ProductDetails = () => {
                                         <img src={rel.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                     </div>
                                     <h4 className="font-bold text-[#2D1B4E] group-hover:text-[#b5128f] transition-colors truncate px-2">{rel.name}</h4>
-                                    <p className="text-[#b5128f] font-black mt-1 px-2">₹{rel.price}</p>
+                                    <div className="text-[#b5128f] font-black mt-1 px-2">
+                                        {rel.variants && rel.variants.length > 0 ? (
+                                            <span className="text-[10px] uppercase tracking-widest">View Price</span>
+                                        ) : (
+                                            <>₹{rel.price}</>
+                                        )}
+                                    </div>
                                 </Link>
                             ))}
                         </div>

@@ -153,12 +153,9 @@ const BestSellers = () => {
                                             {product.isCustomRequest ? (
                                                 <span className="text-[10px] md:text-sm italic bg-purple-50 px-2 py-0.5 md:py-1 rounded">Price on Request</span>
                                             ) : product.variants && product.variants.length > 0 ? (
-                                                <span className="flex flex-col items-center">
-                                                    <span className="text-[8px] md:text-[10px] uppercase tracking-tighter opacity-70">Starting From</span>
-                                                    <span>₹{Math.min(...product.variants.map(v => v.price)).toLocaleString('en-IN')}</span>
-                                                </span>
+                                                <span className="text-[11px] md:text-[13px] uppercase tracking-widest text-primary font-black">View Price</span>
                                             ) : (
-                                                <>₹{parseFloat(product.price.toString()).toLocaleString('en-IN')}</>
+                                                <>₹{parseFloat(product.price.toLocaleString()).toLocaleString('en-IN')}</>
                                             )}
                                         </div>
                                     </div>
