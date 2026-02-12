@@ -4,12 +4,12 @@ import { Helmet } from 'react-helmet-async';
 const SLIDES = [
     {
         id: 1,
-        image: "https://images.weserv.nl/?url=kottravai.in/wp-content/uploads/2025/12/WhatsApp-Image-2025-12-30-at-4.20.58-PM-e1767163041511.jpeg",
+        image: "https://images.weserv.nl/?url=ssl:kottravai.in/wp-content/uploads/2025/12/WhatsApp-Image-2025-12-30-at-4.20.58-PM-e1767163041511.jpeg",
         link: "#"
     },
     {
         id: 2,
-        image: "https://images.weserv.nl/?url=kottravai.in/wp-content/uploads/2025/12/WhatsApp-Image-2025-12-31-at-10.16.33-AM-e1767163411201.jpeg",
+        image: "https://images.weserv.nl/?url=ssl:kottravai.in/wp-content/uploads/2025/12/WhatsApp-Image-2025-12-31-at-10.16.33-AM-e1767163411201.jpeg",
         link: "#"
     }
 ];
@@ -33,15 +33,7 @@ const HeroSlider = () => {
         isAnimatingRef.current = isAnimating;
     }, [isAnimating]);
 
-    // Initialize slides and start autoplay
     useEffect(() => {
-        // Set initial transitions
-        slideRefs.current.forEach((slide) => {
-            if (slide) {
-                slide.style.transition = 'transform 0.8s ease-in-out';
-            }
-        });
-
         startInterval();
         return () => stopInterval();
     }, []);
@@ -239,11 +231,12 @@ const HeroSlider = () => {
                 {SLIDES.map((slide, index) => (
                     <div
                         key={slide.id}
-                        className={`banner-slide ${index === 0 ? 'active' : ''}`}
+                        className={`banner-slide ${index === currentIndex ? 'active' : ''}`}
                         ref={(el) => (slideRefs.current[index] = el)}
                         style={{
-                            transform: index === 0 ? 'translateX(0)' : 'translateX(100%)',
-                            zIndex: index === 0 ? 2 : 1
+                            transform: index === currentIndex ? 'translateX(0)' : (index < currentIndex ? 'translateX(-100%)' : 'translateX(100%)'),
+                            zIndex: index === currentIndex ? 2 : 1,
+                            transition: 'transform 0.8s ease-in-out'
                         }}
                     >
                         <a href={slide.link} className="banner-link">
