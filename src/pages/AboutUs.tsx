@@ -382,7 +382,7 @@ const AboutUs = () => {
                                 </div>
                                 <div className="w-full h-[200px] lg:h-[260px] mt-auto pt-5">
                                     <img
-                                        src="https://kottravai.in/wp-content/uploads/2025/11/DSC03998.jpg"
+                                        src="/Picture1.png"
                                         alt="Sustainable production"
                                         className="w-full h-full object-cover rounded-lg"
                                     />
@@ -393,7 +393,7 @@ const AboutUs = () => {
                             <article className="group relative min-h-[220px] p-[26px] flex flex-col bg-white border-[1.8px] border-[#8E2A8B] rounded-[16px] overflow-hidden transition-all duration-300 hover:shadow-[0_24px_60px_rgba(142,42,139,0.18)] hover:border-transparent">
                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-450 z-0">
                                     <div className="absolute inset-0 bg-gradient-to-b from-[#2D1B4E]/30 to-[#2D1B4E]/90 z-10"></div>
-                                    <img src="https://kottravai.in/wp-content/uploads/2025/12/Picture3.png" alt="Women artisans" className="w-full h-full object-cover" />
+                                    <img src="/Picture2.png" alt="Women artisans" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="relative z-20">
                                     <h3 className="text-[18px] font-bold text-[#2D1B4E] mb-2 group-hover:text-white group-hover:drop-shadow-md transition-colors">Women-Led Craftsmanship</h3>
@@ -408,7 +408,7 @@ const AboutUs = () => {
                             <article className="group relative min-h-[220px] p-[26px] flex flex-col bg-white border-[1.8px] border-[#8E2A8B] rounded-[16px] overflow-hidden transition-all duration-300 hover:shadow-[0_24px_60px_rgba(142,42,139,0.18)] hover:border-transparent">
                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-450 z-0">
                                     <div className="absolute inset-0 bg-gradient-to-b from-[#2D1B4E]/30 to-[#2D1B4E]/90 z-10"></div>
-                                    <img src="https://kottravai.in/wp-content/uploads/2025/12/Picture4.png" alt="Eco creation" className="w-full h-full object-cover" />
+                                    <img src="/Picture3.png" alt="Eco creation" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="relative z-20">
                                     <h3 className="text-[18px] font-bold text-[#2D1B4E] mb-2 group-hover:text-white group-hover:drop-shadow-md transition-colors">Eco-Conscious Creation</h3>
@@ -423,7 +423,7 @@ const AboutUs = () => {
                             <article className="group relative min-h-[220px] p-[26px] flex flex-col bg-white border-[1.8px] border-[#8E2A8B] rounded-[16px] overflow-hidden transition-all duration-300 hover:shadow-[0_24px_60px_rgba(142,42,139,0.18)] hover:border-transparent">
                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-450 z-0">
                                     <div className="absolute inset-0 bg-gradient-to-b from-[#2D1B4E]/30 to-[#2D1B4E]/90 z-10"></div>
-                                    <img src="https://kottravai.in/wp-content/uploads/2025/12/Picture2.png" alt="Ethical practices" className="w-full h-full object-cover" />
+                                    <img src="/Picture4.png" alt="Ethical practices" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="relative z-20">
                                     <h3 className="text-[18px] font-bold text-[#2D1B4E] mb-2 group-hover:text-white group-hover:drop-shadow-md transition-colors">Ethical Practices</h3>
@@ -438,7 +438,7 @@ const AboutUs = () => {
                             <article className="group relative min-h-[220px] p-[26px] flex flex-col bg-white border-[1.8px] border-[#8E2A8B] rounded-[16px] overflow-hidden transition-all duration-300 hover:shadow-[0_24px_60px_rgba(142,42,139,0.18)] hover:border-transparent">
                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-450 z-0">
                                     <div className="absolute inset-0 bg-gradient-to-b from-[#2D1B4E]/30 to-[#2D1B4E]/90 z-10"></div>
-                                    <img src="https://kottravai.in/wp-content/uploads/2025/12/Picture5.png" alt="Purpose impact" className="w-full h-full object-cover" />
+                                    <img src="/Picture5.png" alt="Purpose impact" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="relative z-20">
                                     <h3 className="text-[18px] font-bold text-[#2D1B4E] mb-2 group-hover:text-white group-hover:drop-shadow-md transition-colors">Purpose-Driven Impact</h3>
