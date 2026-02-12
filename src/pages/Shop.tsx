@@ -575,10 +575,10 @@ const Shop = () => {
                                                         <div className="text-[12px] md:text-sm font-black text-[#b5128f]">
                                                             {product.isCustomRequest ? (
                                                                 <span className="text-[10px] uppercase tracking-widest text-[#8E2A8B]">Price on Request</span>
-                                                            ) : product.variants && product.variants.length > 0 ? (
+                                                            ) : (product.variants && product.variants.length > 0) ? (
                                                                 <span className="text-[11px] md:text-[13px] uppercase tracking-widest text-[#b5128f] font-black">View Price</span>
                                                             ) : (
-                                                                <>₹{parseFloat(product.price.toString()).toLocaleString('en-IN')}</>
+                                                                <>₹{Number(product.price).toLocaleString('en-IN')}</>
                                                             )}
                                                         </div>
 

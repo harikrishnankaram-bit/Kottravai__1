@@ -35,19 +35,10 @@ const HeroSlider = () => {
 
     // Initialize slides and start autoplay
     useEffect(() => {
-        // Set initial positions
-        slideRefs.current.forEach((slide, index) => {
+        // Set initial transitions
+        slideRefs.current.forEach((slide) => {
             if (slide) {
                 slide.style.transition = 'transform 0.8s ease-in-out';
-                if (index === 0) {
-                    slide.classList.add('active');
-                    slide.style.transform = 'translateX(0)';
-                    slide.style.zIndex = '2';
-                } else {
-                    slide.classList.remove('active');
-                    slide.style.transform = 'translateX(100%)';
-                    slide.style.zIndex = '1';
-                }
             }
         });
 
@@ -248,15 +239,18 @@ const HeroSlider = () => {
                 {SLIDES.map((slide, index) => (
                     <div
                         key={slide.id}
-                        className="banner-slide"
+                        className={`banner-slide ${index === 0 ? 'active' : ''}`}
                         ref={(el) => (slideRefs.current[index] = el)}
+                        style={{
+                            transform: index === 0 ? 'translateX(0)' : 'translateX(100%)',
+                            zIndex: index === 0 ? 2 : 1
+                        }}
                     >
                         <a href={slide.link} className="banner-link">
                             <img
                                 src={slide.image}
                                 alt={`Banner ${index + 1}`}
                                 className="banner-bg"
-                                crossOrigin="anonymous"
                             />
                         </a>
                     </div>
