@@ -1,7 +1,4 @@
-import { useState } from 'react';
-import { MessageCircle } from 'lucide-react';
-import { generateWhatsAppLink, openWhatsApp } from '@/utils/whatsapp';
-import WhatsAppConfirmModal from '@/components/whatsapp/WhatsAppConfirmModal';
+import React from 'react';
 
 interface Product {
     id: string;
@@ -11,19 +8,7 @@ interface Product {
 }
 
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const handleWhatsAppOrder = (city?: string) => {
-        const link = generateWhatsAppLink({
-            productName: product.name,
-            productId: product.id,
-            price: product.price,
-            quantity: 1,
-            customerCity: city
-        });
-        openWhatsApp(link);
-        setIsModalOpen(false);
-    };
 
     return (
         <div className="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300">
@@ -46,21 +31,8 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
                     {product.price.toLocaleString('en-IN')}
                 </p>
 
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transform active:scale-[0.98] transition-all shadow-lg shadow-green-500/20"
-                >
-                    <MessageCircle size={20} />
-                    <span>Order on WhatsApp</span>
-                </button>
             </div>
 
-            <WhatsAppConfirmModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onConfirm={handleWhatsAppOrder}
-                productName={product.name}
-            />
         </div>
     );
 };

@@ -5,10 +5,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
 import { useCart } from '@/context/CartContext';
 import { useProducts } from '@/context/ProductContext';
-import { ShoppingBag, Star, Heart, Minus, Plus, X, Check, Share2, MessageCircle } from 'lucide-react';
+import { ShoppingBag, Star, Heart, Minus, Plus, X, Check, Share2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { generateWhatsAppLink, openWhatsApp } from '@/utils/whatsapp';
-import WhatsAppConfirmModal from '@/components/whatsapp/WhatsAppConfirmModal';
 
 const ProductDetails = () => {
     const { slug } = useParams();
@@ -53,20 +51,7 @@ const ProductDetails = () => {
         name: '', email: '', phone: '', message: '', referenceImage: ''
     });
 
-    const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
 
-    const handleWhatsAppOrder = (city?: string) => {
-        const link = generateWhatsAppLink({
-            productName: product?.name || '',
-            productId: product?.id || '',
-            price: selectedVariant ? selectedVariant.price * quantity : (product?.price || 0) * quantity,
-            quantity: quantity,
-            size: selectedVariant?.weight,
-            customerCity: city
-        });
-        openWhatsApp(link);
-        setIsWhatsAppModalOpen(false);
-    };
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -274,13 +259,6 @@ const ProductDetails = () => {
                                 >
                                     Instant Checkout
                                 </button>
-                                <button
-                                    onClick={() => setIsWhatsAppModalOpen(true)}
-                                    className="w-full h-16 rounded-[1.25rem] font-black uppercase tracking-[0.2em] text-xs transition-all border-2 border-[#25D366] bg-[#25D366] text-white hover:bg-transparent hover:text-[#25D366] flex items-center justify-center gap-3 active:scale-95 shadow-lg shadow-green-500/10"
-                                >
-                                    <MessageCircle size={20} />
-                                    Order on WhatsApp
-                                </button>
                             </div>
                         ) : (
                             <div className="mb-12">
@@ -476,12 +454,6 @@ const ProductDetails = () => {
                 </div>
             )}
 
-            <WhatsAppConfirmModal
-                isOpen={isWhatsAppModalOpen}
-                onClose={() => setIsWhatsAppModalOpen(false)}
-                onConfirm={handleWhatsAppOrder}
-                productName={product.name}
-            />
         </MainLayout>
     );
 };
