@@ -4,6 +4,13 @@ import { useState, useEffect } from 'react';
 
 const Footer = () => {
     const [showScrollTop, setShowScrollTop] = useState(false);
+    const [openSection, setOpenSection] = useState<string | null>(null);
+
+    const toggleSection = (section: string) => {
+        if (window.innerWidth < 1024) { // Only toggle on mobile
+            setOpenSection(openSection === section ? null : section);
+        }
+    };
 
     useEffect(() => {
         const checkScroll = () => {
@@ -23,8 +30,8 @@ const Footer = () => {
     };
 
     return (
-        <footer className="bg-black text-white pt-20 pb-10 relative">
-            <div className="mx-auto max-w-[1440px] px-6 sm:px-8 md:px-12 lg:px-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <footer className="bg-black text-white pt-12 lg:pt-20 pb-10 relative">
+            <div className="mx-auto max-w-[1440px] px-6 sm:px-8 md:px-12 lg:px-20 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 mb-16">
                 {/* Col 1: Brand & Address */}
                 <div className="space-y-6">
                     <Link to="/" className="inline-block">
@@ -46,21 +53,33 @@ const Footer = () => {
                 </div>
 
                 {/* Col 2: Main Navigation */}
-                <div>
-                    <h4 className="text-lg font-bold mb-8">Main Navigation</h4>
-                    <ul className="space-y-4 text-sm text-gray-400">
+                <div className="border-b border-gray-800 lg:border-none pb-4 lg:pb-0">
+                    <button
+                        onClick={() => toggleSection('main')}
+                        className="w-full flex items-center justify-between lg:block text-left group"
+                    >
+                        <h4 className="text-lg font-bold lg:mb-8">Main Navigation</h4>
+                        <ChevronUp className={`lg:hidden transition-transform duration-300 ${openSection === 'main' ? '' : 'rotate-180'}`} size={20} />
+                    </button>
+                    <ul className={`lg:block space-y-4 text-sm text-gray-400 mt-4 lg:mt-0 transition-all duration-300 overflow-hidden ${openSection === 'main' ? 'max-h-64 opacity-100' : 'max-h-0 lg:max-h-none opacity-0 lg:opacity-100'}`}>
                         <li><Link to="/" className="hover:text-[#d846ef] transition-colors">Home</Link></li>
                         <li><Link to="/shop" className="hover:text-[#d846ef] transition-colors">Shop By Category</Link></li>
                         <li><Link to="/about" className="hover:text-[#d846ef] transition-colors">Our Story</Link></li>
                         <li><Link to="/contact" className="hover:text-[#d846ef] transition-colors">Contact</Link></li>
-                        <li><Link to="/blogs" className="hover:text-[#d846ef] transition-colors">Blogs</Link></li>
+                        <li><Link to="/blog" className="hover:text-[#d846ef] transition-colors">Blogs</Link></li>
                     </ul>
                 </div>
 
                 {/* Col 3: Useful Links */}
-                <div>
-                    <h4 className="text-lg font-bold mb-8">Useful Links</h4>
-                    <ul className="space-y-4 text-sm text-gray-400">
+                <div className="border-b border-gray-800 lg:border-none pb-4 lg:pb-0">
+                    <button
+                        onClick={() => toggleSection('useful')}
+                        className="w-full flex items-center justify-between lg:block text-left group"
+                    >
+                        <h4 className="text-lg font-bold lg:mb-8">Useful Links</h4>
+                        <ChevronUp className={`lg:hidden transition-transform duration-300 ${openSection === 'useful' ? '' : 'rotate-180'}`} size={20} />
+                    </button>
+                    <ul className={`lg:block space-y-4 text-sm text-gray-400 mt-4 lg:mt-0 transition-all duration-300 overflow-hidden ${openSection === 'useful' ? 'max-h-64 opacity-100' : 'max-h-0 lg:max-h-none opacity-0 lg:opacity-100'}`}>
                         <li><Link to="/shipping-policy" className="hover:text-[#d846ef] transition-colors">Shipping Policy</Link></li>
                         <li><Link to="/refund-policy" className="hover:text-[#d846ef] transition-colors">Refund Policy</Link></li>
                         <li><Link to="/terms-of-service" className="hover:text-[#d846ef] transition-colors">Terms Of Service</Link></li>
@@ -70,10 +89,10 @@ const Footer = () => {
                 </div>
 
                 {/* Col 4: Let's get in touch */}
-                <div>
+                <div className="pt-4 lg:pt-0">
                     <h4 className="text-lg font-bold mb-6">Let's get in touch</h4>
                     <p className="text-gray-400 text-sm mb-6 leading-relaxed">
-                        Sign up to get first dibs on new arrivals, sales, exclusive content, events and more!
+                        Sign up for our newsletter!
                     </p>
                     <form className="relative mb-8">
                         <input
@@ -87,7 +106,7 @@ const Footer = () => {
                     </form>
 
                     {/* Social Icons */}
-                    <div className="flex space-x-6">
+                    <div className="flex space-x-4 lg:space-x-6">
                         <a href="https://www.facebook.com/profile.php?id=61582600756315" className="bg-white rounded-full p-1.5 text-black hover:bg-[#d846ef] hover:text-white transition-colors"><Facebook size={18} /></a>
                         <a href="https://www.youtube.com/@Kottravai_in" className="bg-white rounded-full p-1.5 text-black hover:bg-[#d846ef] hover:text-white transition-colors"><Youtube size={18} /></a>
                         <a href="https://x.com/kottravai_in" className="bg-white rounded-full p-1.5 text-black hover:bg-[#d846ef] hover:text-white transition-colors">
@@ -102,15 +121,15 @@ const Footer = () => {
             </div>
 
             {/* Bottom Bar */}
-            <div className="mx-auto max-w-[1440px] px-8 md:px-12 lg:px-20 pt-8 text-sm text-gray-400">
-                <p>© 2025 – Kottravai. All Rights Reserved.</p>
+            <div className="border-t border-gray-900 mx-auto max-w-[1440px] px-8 md:px-12 lg:px-20 pt-8 text-sm text-gray-500">
+                <p className="text-center lg:text-left">© 2025 – Kottravai. All Rights Reserved.</p>
             </div>
 
             {/* Scroll To Top Button */}
             {showScrollTop && (
                 <button
                     onClick={scrollToTop}
-                    className="fixed bottom-[225px] md:bottom-[176px] right-8 w-11 h-11 border border-gray-200 rounded-full flex items-center justify-center hover:bg-black hover:border-black text-black hover:text-white transition-all z-50 bg-white shadow-xl"
+                    className="fixed bottom-24 right-6 w-10 h-10 border border-gray-800 rounded-full flex items-center justify-center hover:bg-[#d846ef] hover:border-[#d846ef] text-gray-400 hover:text-white transition-all z-50 bg-[#1a1a1a] shadow-2xl shadow-black"
                     aria-label="Scroll to top"
                 >
                     <ChevronUp size={20} />

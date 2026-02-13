@@ -10,13 +10,14 @@ import { Plus, Image as ImageIcon, Trash2, X, Upload, Pencil, MessageSquareQuote
 import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
 import { categories } from '@/data/products';
 import toast from 'react-hot-toast';
+import { supabase } from '@/utils/supabaseClient';
 
 
 
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
-    const { products, addProduct, deleteProduct, updateProduct, updateStock } = useProducts();
+    const { products, addProduct, deleteProduct, updateProduct, updateStock, fetchProducts } = useProducts();
     const { videos, addVideo, deleteVideo, updateVideo } = useVideos();
     const { newsItems, addNewsItem, deleteNewsItem, updateNewsItem } = useNews();
     const { addReview, deleteReview, updateReview, getReviewsByPage } = useReviews();
@@ -158,7 +159,13 @@ const AdminDashboard = () => {
     });
 
     const [mainImage, setMainImage] = useState<string>('');
+    const [mainImageFile, setMainImageFile] = useState<File | null>(null);
     const [otherImages, setOtherImages] = useState<string[]>([]);
+    const [otherImageFiles, setOtherImageFiles] = useState<File[]>([]);
+    const [newsImageFile, setNewsImageFile] = useState<File | null>(null);
+    const [reviewImageFile, setReviewImageFile] = useState<File | null>(null);
+    const [partnerLogoFile, setPartnerLogoFile] = useState<File | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
 
 
 
@@ -172,30 +179,54 @@ const AdminDashboard = () => {
         });
     };
 
+    // Generic Upload Helper for Supabase
+    const uploadToSupabase = async (file: File, folder: string): Promise<string> => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+        const filePath = `${folder}/${fileName}`;
+
+        const { data, error } = await supabase.storage
+            .from('products')
+            .upload(filePath, file);
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+            .from('products')
+            .getPublicUrl(data.path);
+
+        return publicUrl;
+    };
+
     // File Handlers
     const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setMainImageFile(file);
             const base64 = await convertToBase64(file);
-            setMainImage(base64);
+            setMainImage(base64); // For preview only
         }
     };
 
     const handleNewsImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setNewsImageFile(file);
             const base64 = await convertToBase64(file);
-            setNewsForm({ ...newsForm, image: base64 });
+            setNewsForm({ ...newsForm, image: base64 }); // For preview only
         }
     };
 
     const handleOtherImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (files) {
-            Array.from(files).forEach(async (file) => {
+            const fileList = Array.from(files);
+            setOtherImageFiles(prev => [...prev, ...fileList]);
+
+            for (const file of fileList) {
                 const base64 = await convertToBase64(file);
-                setOtherImages(prev => [...prev, base64]);
-            });
+                setOtherImages(prev => [...prev, base64]); // For preview only
+            }
         }
     };
 
@@ -255,8 +286,11 @@ const AdminDashboard = () => {
             variants: []
         });
         setMainImage('');
+        setMainImageFile(null);
         setOtherImages([]);
+        setOtherImageFiles([]);
         setEditingId(null);
+        setIsUploading(false);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -266,13 +300,40 @@ const AdminDashboard = () => {
         if (!formData.name.trim()) return toast.error("Product Name is required");
         if (!formData.isCustomRequest && (!formData.price || isNaN(parseFloat(formData.price)))) return toast.error("Please enter a valid price");
         if (!formData.category) return toast.error("Please select a category");
-        if (!mainImage) return toast.error("Main Product Image is required");
+        if (!mainImage && !mainImageFile) return toast.error("Main Product Image is required");
 
-        // Find category name from slug
-        const categoryObj = categories.find(c => c.slug === formData.category);
-        const categoryName = categoryObj ? categoryObj.name : 'Uncategorized';
+        setIsUploading(true);
+        const uploadToast = toast.loading(editingId ? "Updating product..." : "Creating product...");
 
         try {
+            // 2. Upload Images to Supabase if they are new files
+            let uploadedMainUrl = mainImage;
+            if (mainImageFile) {
+                uploadedMainUrl = await uploadToSupabase(mainImageFile, 'products');
+            }
+
+            const uploadedOtherUrls = await Promise.all(
+                otherImages.map(async (img, idx) => {
+                    // Check if this index has a corresponding file in otherImageFiles
+                    // (Matches by index if otherImageFiles were added in order)
+                    // If it's already a URL (not base64), keep it
+                    if (img.startsWith('http')) return img;
+
+                    // Find the matching file index. Note: This simple logic assumes 
+                    // otherImageFiles matches 1:1 with base64 strings in otherImages
+                    // that don't start with http.
+                    const fileIndex = otherImages.slice(0, idx).filter(ui => !ui.startsWith('http')).length;
+                    if (otherImageFiles[fileIndex]) {
+                        return await uploadToSupabase(otherImageFiles[fileIndex], 'gallery');
+                    }
+                    return img;
+                })
+            );
+
+            // Find category name from slug
+            const categoryObj = categories.find(c => c.slug === formData.category);
+            const categoryName = categoryObj ? categoryObj.name : 'Uncategorized';
+
             // Find existing product to preserve reviews if editing
             const existingProduct = products.find(p => p.id === editingId);
             const existingReviews = existingProduct?.reviews || [];
@@ -281,16 +342,16 @@ const AdminDashboard = () => {
                 id: editingId || Date.now().toString(),
                 name: formData.name,
                 price: formData.isCustomRequest ? 0 : parseFloat(formData.price),
-                category: categoryName, // Storing name
-                categorySlug: formData.category, // Storing slug for logic
+                category: categoryName,
+                categorySlug: formData.category,
                 slug: formData.name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''),
-                image: mainImage,
-                images: otherImages,
+                image: uploadedMainUrl,
+                images: uploadedOtherUrls,
                 shortDescription: formData.shortDescription,
                 description: formData.description,
                 keyFeatures: formData.keyFeatures.split('\n').filter(f => f.trim() !== ''),
                 features: formData.specifications.split('\n').filter(f => f.trim() !== ''),
-                reviews: existingReviews, // Preserve reviews
+                reviews: existingReviews,
                 isBestSeller: formData.isBestSeller,
                 isCustomRequest: formData.isCustomRequest,
                 defaultFormFields: formData.defaultFormFields,
@@ -300,22 +361,24 @@ const AdminDashboard = () => {
 
             if (editingId) {
                 await updateProduct(productData);
-                toast.success('Product Updated Successfully!');
+                toast.success('Product Updated Successfully!', { id: uploadToast });
             } else {
                 await addProduct(productData);
-                toast.success('Product Added Successfully!');
+                toast.success('Product Added Successfully!', { id: uploadToast });
             }
 
+            await fetchProducts(true);
             setView('list');
             resetForm();
 
         } catch (error: any) {
             console.error("Failed to save product:", error);
             const errorMessage = error.response?.data?.error || error.message || "Unknown error";
-            toast.error(`Failed to save product: ${errorMessage}`);
+            toast.error(`Failed to save product: ${errorMessage}`, { id: uploadToast });
+        } finally {
+            setIsUploading(false);
         }
     }
-
 
     const handleAddVideo = (e: React.FormEvent) => {
         e.preventDefault();
@@ -352,22 +415,35 @@ const AdminDashboard = () => {
         setNewVideo({ title: '', url: '' });
     };
 
-    // News Handlers
-    const handleAddNews = (e: React.FormEvent) => {
+    const handleAddNews = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newsForm.title || !newsForm.category || !newsForm.date || !newsForm.link) return toast.error("Please fill all fields");
 
-        const newsData = { ...newsForm };
+        setIsUploading(true);
+        const uploadToast = toast.loading("Saving news item...");
+        try {
+            let uploadedImageUrl = newsForm.image;
+            if (newsImageFile) {
+                uploadedImageUrl = await uploadToSupabase(newsImageFile, 'news');
+            }
 
-        if (editingNewsId) {
-            updateNewsItem({ id: editingNewsId, ...newsData });
-            setEditingNewsId(null);
-            toast.success("News updated successfully");
-        } else {
-            addNewsItem(newsData);
-            toast.success("News added successfully");
+            const newsData = { ...newsForm, image: uploadedImageUrl };
+
+            if (editingNewsId) {
+                updateNewsItem({ id: editingNewsId, ...newsData });
+                setEditingNewsId(null);
+                toast.success("News updated successfully", { id: uploadToast });
+            } else {
+                addNewsItem(newsData);
+                toast.success("News added successfully", { id: uploadToast });
+            }
+            setNewsForm({ title: '', category: '', date: '', image: '', link: '' });
+            setNewsImageFile(null);
+        } catch (error: any) {
+            toast.error("Failed to save news item", { id: uploadToast });
+        } finally {
+            setIsUploading(false);
         }
-        setNewsForm({ title: '', category: '', date: '', image: '', link: '' });
     };
 
     const handleEditNews = (news: any) => {
@@ -387,25 +463,39 @@ const AdminDashboard = () => {
         setNewsForm({ title: '', category: '', date: '', image: '', link: '' });
     };
 
-    // Review Handlers
-    const handleAddReview = (e: React.FormEvent) => {
+    const handleAddReview = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!reviewForm.name || !reviewForm.content) return toast.error("All fields are required");
 
-        const reviewData = {
-            ...reviewForm,
-            page: reviewPage
-        };
+        setIsUploading(true);
+        const uploadToast = toast.loading("Saving review...");
+        try {
+            let uploadedImageUrl = reviewForm.image;
+            if (reviewImageFile) {
+                uploadedImageUrl = await uploadToSupabase(reviewImageFile, 'reviews');
+            }
 
-        if (editingReviewId) {
-            updateReview({ id: editingReviewId, ...reviewData });
-            setEditingReviewId(null);
-            toast.success("Review updated successfully");
-        } else {
-            addReview(reviewData);
-            toast.success("Review added successfully");
+            const reviewData = {
+                ...reviewForm,
+                image: uploadedImageUrl,
+                page: reviewPage
+            };
+
+            if (editingReviewId) {
+                updateReview({ id: editingReviewId, ...reviewData });
+                setEditingReviewId(null);
+                toast.success("Review updated successfully", { id: uploadToast });
+            } else {
+                addReview(reviewData);
+                toast.success("Review added successfully", { id: uploadToast });
+            }
+            setReviewForm({ name: '', role: '', content: '', image: '', rating: 5 });
+            setReviewImageFile(null);
+        } catch (error: any) {
+            toast.error("Failed to save review", { id: uploadToast });
+        } finally {
+            setIsUploading(false);
         }
-        setReviewForm({ name: '', role: '', content: '', image: '', rating: 5 });
     };
 
     const handleEditReview = (review: any) => {
@@ -428,27 +518,41 @@ const AdminDashboard = () => {
     const handleReviewImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setReviewImageFile(file);
             const base64 = await convertToBase64(file);
             setReviewForm({ ...reviewForm, image: base64 });
         }
     };
 
-    // Partner Handlers
-    const handleAddPartner = (e: React.FormEvent) => {
+    const handleAddPartner = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!partnerForm.name) return toast.error("Partner Name is required");
 
-        const partnerData = { ...partnerForm };
+        setIsUploading(true);
+        const uploadToast = toast.loading("Saving partner...");
+        try {
+            let uploadedLogoUrl = partnerForm.logo;
+            if (partnerLogoFile) {
+                uploadedLogoUrl = await uploadToSupabase(partnerLogoFile, 'partners');
+            }
 
-        if (editingPartnerId) {
-            updatePartner({ id: editingPartnerId, ...partnerData });
-            setEditingPartnerId(null);
-            toast.success("Partner updated successfully");
-        } else {
-            addPartner(partnerData);
-            toast.success("Partner added successfully");
+            const partnerData = { ...partnerForm, logo: uploadedLogoUrl };
+
+            if (editingPartnerId) {
+                updatePartner({ id: editingPartnerId, ...partnerData });
+                setEditingPartnerId(null);
+                toast.success("Partner updated successfully", { id: uploadToast });
+            } else {
+                addPartner(partnerData);
+                toast.success("Partner added successfully", { id: uploadToast });
+            }
+            setPartnerForm({ name: '', logo: '' });
+            setPartnerLogoFile(null);
+        } catch (error: any) {
+            toast.error("Failed to save partner", { id: uploadToast });
+        } finally {
+            setIsUploading(false);
         }
-        setPartnerForm({ name: '', logo: '' });
     };
 
     const handleEditPartner = (partner: any) => {
@@ -468,12 +572,19 @@ const AdminDashboard = () => {
     const handlePartnerLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setPartnerLogoFile(file);
             const base64 = await convertToBase64(file);
             setPartnerForm({ ...partnerForm, logo: base64 });
         }
     };
 
     const removeOtherImage = (index: number) => {
+        const isFile = !otherImages[index].startsWith('http');
+        if (isFile) {
+            // Find which file in otherImageFiles corresponds to this index
+            const fileIndex = otherImages.slice(0, index).filter(img => !img.startsWith('http')).length;
+            setOtherImageFiles(prev => prev.filter((_, i) => i !== fileIndex));
+        }
         setOtherImages(prev => prev.filter((_, i) => i !== index));
     };
 
@@ -503,7 +614,7 @@ const AdminDashboard = () => {
                     <div className="space-y-2">
                         <p className="px-4 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Central Hub</p>
                         <button
-                            onClick={() => { setView('dashboard'); resetForm(); setSelectedCategory('all'); }}
+                            onClick={() => { setView('dashboard'); resetForm(); setSelectedCategory('all'); fetchProducts(true); }}
                             className={`w-full text-left px-5 py-3.5 rounded-2xl transition-all duration-300 font-bold flex items-center gap-4 group ${view === 'dashboard' ? 'sidebar-item-active' : 'text-gray-400 hover:bg-white/5 hover:text-white'}`}
                         >
                             <div className={`p-2 rounded-xl transition-colors ${view === 'dashboard' ? 'bg-white/20' : 'bg-gray-800 group-hover:bg-gray-700'}`}>
@@ -526,7 +637,13 @@ const AdminDashboard = () => {
                                 <button
                                     key={idx}
                                     onClick={() => {
-                                        if (item.view === 'list') setSelectedCategory('all');
+                                        if (item.view === 'list') {
+                                            setSelectedCategory('all');
+                                            fetchProducts(true);
+                                        }
+                                        if (item.view === 'orders') {
+                                            fetchAllOrders(true);
+                                        }
                                         setView(item.view as any);
                                         resetForm();
                                     }}
@@ -1127,9 +1244,17 @@ const AdminDashboard = () => {
                                         )}
                                         <button
                                             type="submit"
-                                            className="bg-[#2D1B4E] text-white px-6 py-2.5 rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors"
+                                            disabled={isUploading}
+                                            className="bg-[#2D1B4E] text-white px-6 py-2.5 rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors flex items-center gap-2 disabled:bg-gray-400"
                                         >
-                                            {editingNewsId ? 'Update News' : 'Add News'}
+                                            {isUploading ? (
+                                                <>
+                                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                                    Saving...
+                                                </>
+                                            ) : (
+                                                editingNewsId ? 'Update News' : 'Add News'
+                                            )}
                                         </button>
                                     </div>
                                 </form>
@@ -1258,9 +1383,17 @@ const AdminDashboard = () => {
                                         )}
                                         <button
                                             type="submit"
-                                            className="bg-[#2D1B4E] text-white px-6 py-2.5 rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors"
+                                            disabled={isUploading}
+                                            className="bg-[#2D1B4E] text-white px-6 py-2.5 rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors flex items-center gap-2 disabled:bg-gray-400"
                                         >
-                                            {editingReviewId ? 'Update Review' : 'Add Review'}
+                                            {isUploading ? (
+                                                <>
+                                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                                    Saving...
+                                                </>
+                                            ) : (
+                                                editingReviewId ? 'Update Review' : 'Add Review'
+                                            )}
                                         </button>
                                     </div>
                                 </form>
@@ -1345,9 +1478,17 @@ const AdminDashboard = () => {
                                         )}
                                         <button
                                             type="submit"
-                                            className="bg-[#2D1B4E] text-white px-6 py-2.5 rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors"
+                                            disabled={isUploading}
+                                            className="bg-[#2D1B4E] text-white px-6 py-2.5 rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors flex items-center gap-2 disabled:bg-gray-400"
                                         >
-                                            {editingPartnerId ? 'Update Partner' : 'Add Partner'}
+                                            {isUploading ? (
+                                                <>
+                                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                                    Saving...
+                                                </>
+                                            ) : (
+                                                editingPartnerId ? 'Update Partner' : 'Add Partner'
+                                            )}
                                         </button>
                                     </div>
                                 </form>
@@ -1419,7 +1560,7 @@ const AdminDashboard = () => {
                                             onChange={e => setFormData({ ...formData, price: e.target.value })}
                                             className={`w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-[#8E2A8B] focus:border-[#8E2A8B] outline-none transition-all ${formData.isCustomRequest ? 'bg-gray-100 text-gray-400' : ''}`}
                                             placeholder="0.00"
-                                            disabled={formData.isCustomRequest}
+                                            disabled={formData.isCustomRequest || isUploading}
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -1838,15 +1979,24 @@ const AdminDashboard = () => {
                                     <button
                                         type="button"
                                         onClick={() => { setView('list'); resetForm(); }}
-                                        className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-bold hover:bg-gray-50 transition-colors"
+                                        disabled={isUploading}
+                                        className="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-bold hover:bg-gray-50 transition-colors disabled:opacity-50"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
-                                        className="px-6 py-2.5 bg-[#2D1B4E] text-white rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors shadow-lg"
+                                        disabled={isUploading}
+                                        className="px-6 py-2.5 bg-[#2D1B4E] text-white rounded-lg font-bold hover:bg-[#8E2A8B] transition-colors shadow-lg disabled:bg-gray-400 flex items-center gap-2"
                                     >
-                                        {editingId ? 'Save Changes' : 'Create Product'}
+                                        {isUploading ? (
+                                            <>
+                                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                                Saving...
+                                            </>
+                                        ) : (
+                                            editingId ? 'Save Changes' : 'Create Product'
+                                        )}
                                     </button>
                                 </div>
                             </form>

@@ -312,24 +312,66 @@ const Shop = () => {
                     </div>
 
                     {/* Mobile Horizontal Scrollable Categories */}
-                    <div className="lg:hidden mb-6 -mx-4 px-4 overflow-x-auto no-scrollbar pb-2">
-                        <div className="flex gap-3 min-w-max">
-                            <Link
-                                to="/shop"
-                                className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${!slug ? 'bg-[#b5128f] text-white shadow-lg' : 'bg-white text-gray-400 border border-gray-100'}`}
-                            >
-                                All Items
-                            </Link>
-                            {categories.filter(c => !c.parent).map((parent) => (
+                    <div className="lg:hidden space-y-3 mb-6">
+                        <div className="-mx-4 px-4 overflow-x-auto no-scrollbar pb-1">
+                            <div className="flex gap-2 min-w-max">
                                 <Link
-                                    key={parent.slug}
-                                    to={`/category/${parent.slug}`}
-                                    className={`px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${slug === parent.slug ? 'bg-[#8E2A8B] text-white shadow-lg' : 'bg-white text-gray-400 border border-gray-100'}`}
+                                    to="/shop"
+                                    className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${!slug ? 'bg-[#b5128f] text-white shadow-md' : 'bg-white text-gray-400 border border-gray-100'}`}
                                 >
-                                    {parent.name}
+                                    All Items
                                 </Link>
-                            ))}
+                                {categories.filter(c => !c.parent).map((parent) => {
+                                    const parentOfCurrent = slug ? categories.find(c => c.slug === slug)?.parent : null;
+                                    const isActive = slug === parent.slug || parentOfCurrent === parent.slug;
+
+                                    return (
+                                        <Link
+                                            key={parent.slug}
+                                            to={`/category/${parent.slug}`}
+                                            className={`px-4 py-2 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${isActive ? 'bg-[#8E2A8B] text-white shadow-md' : 'bg-white text-gray-400 border border-gray-100'}`}
+                                        >
+                                            {parent.name}
+                                        </Link>
+                                    );
+                                })}
+                            </div>
                         </div>
+
+                        {/* Sub-categories row for mobile - Visible only when a parent is active */}
+                        {(slug && (categories.find(c => c.slug === slug && !c.parent) || categories.find(c => c.slug === slug && c.parent))) && (
+                            <div className="-mx-4 px-4 overflow-x-auto no-scrollbar pb-1 animate-in fade-in slide-in-from-left duration-300">
+                                <div className="flex gap-2 min-w-max">
+                                    {(() => {
+                                        const current = categories.find(c => c.slug === slug);
+                                        const parentSlug = current?.parent || current?.slug;
+                                        const subcats = categories.filter(c => c.parent === parentSlug);
+
+                                        if (subcats.length === 0) return null;
+
+                                        return (
+                                            <>
+                                                <Link
+                                                    to={`/category/${parentSlug}`}
+                                                    className={`px-3 py-1.5 rounded-lg text-[8px] font-bold uppercase tracking-widest transition-all ${slug === parentSlug ? 'bg-gray-100 text-[#b5128f]' : 'bg-white text-gray-400 border border-gray-50'}`}
+                                                >
+                                                    All {categories.find(c => c.slug === parentSlug)?.name}
+                                                </Link>
+                                                {subcats.map(sub => (
+                                                    <Link
+                                                        key={sub.slug}
+                                                        to={`/category/${sub.slug}`}
+                                                        className={`px-3 py-1.5 rounded-lg text-[8px] font-bold uppercase tracking-widest transition-all ${slug === sub.slug ? 'bg-[#b5128f]/10 text-[#b5128f] border border-[#b5128f]/20' : 'bg-white text-gray-400 border border-gray-50'}`}
+                                                    >
+                                                        {sub.name}
+                                                    </Link>
+                                                ))}
+                                            </>
+                                        );
+                                    })()}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Mobile Filter Drawer (Conditional) */}

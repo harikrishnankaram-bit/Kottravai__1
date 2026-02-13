@@ -20,8 +20,8 @@ interface AnalyticsEvent {
 const CONFIG: AnalyticsConfig = {
     // REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT URL
     endpoint: import.meta.env.VITE_ANALYTICS_URL || '',
-    batchInterval: 15000, // 15 seconds
-    maxBatchSize: 50
+    batchInterval: 30000, // 30 seconds (even more quota friendly)
+    maxBatchSize: 100
 };
 
 let eventBuffer: AnalyticsEvent[] = [];

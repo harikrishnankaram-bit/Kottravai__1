@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo, useRef } from 'react';
 import { Product } from '@/data/products';
 import { useAuth } from './AuthContext';
 import { supabase } from '@/utils/supabaseClient';
@@ -22,10 +22,21 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
     const { user, isAuthenticated } = useAuth();
     const [wishlist, setWishlist] = useState<Product[]>([]);
     const [loading, setLoading] = useState(false);
+    const hasFetched = useRef(false);
+    const lastSessionUser = useRef<string | null>(null);
 
+    const lastFetchRef = useRef<number>(0);
     // Fetch wishlist from server
-    const fetchWishlist = useCallback(async () => {
+    const fetchWishlist = useCallback(async (force = false) => {
         if (!user?.username) return;
+
+        const recentlyFetched = Date.now() - lastFetchRef.current < 30000;
+        if (!force && hasFetched.current && lastSessionUser.current === user.username) return;
+        if (force && recentlyFetched) {
+            console.log('🛡️ Throttling wishlist fetch');
+            return;
+        }
+
         setLoading(true);
         try {
             const { data: { session } } = await supabase.auth.getSession();
@@ -34,6 +45,10 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setWishlist(response.data);
+            hasFetched.current = true;
+            lastSessionUser.current = user.username;
+            lastFetchRef.current = Date.now();
+            localStorage.setItem('kottravai_wishlist_cache', JSON.stringify(response.data));
         } catch (error) {
             console.error("Failed to fetch wishlist", error);
         } finally {
@@ -50,23 +65,17 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
                 try {
                     const guestItems = JSON.parse(guestWishlistStr);
                     if (Array.isArray(guestItems) && guestItems.length > 0) {
-                        // Merge guest items into server wishlist in the background
                         const mergeAll = async () => {
                             const { data: { session } } = await supabase.auth.getSession();
                             const token = session?.access_token;
-
                             for (const product of guestItems) {
                                 // Add to local state first for instant feedback if not already there
                                 setWishlist(prev => {
                                     if (prev.some(item => item.id === product.id)) return prev;
                                     return [...prev, product];
                                 });
-
-                                // Sync to server
                                 try {
-                                    await axios.post(`${API_URL}/wishlist/toggle`, {
-                                        productId: product.id
-                                    }, {
+                                    await axios.post(`${API_URL}/wishlist/toggle`, { productId: product.id }, {
                                         headers: { Authorization: `Bearer ${token}` }
                                     });
                                 } catch (e) {
@@ -74,6 +83,7 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
                                 }
                             }
                             localStorage.removeItem('kottravai_wishlist');
+                            fetchWishlist(true); // Force a clean fetch after merge
                         };
                         mergeAll();
                     } else {
@@ -97,6 +107,15 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
                 setWishlist([]);
             }
         }
+
+        // Storage Listener for cross-tab sync
+        const sync = (e: StorageEvent) => {
+            if (e.key === 'kottravai_wishlist_cache' && e.newValue) {
+                setWishlist(JSON.parse(e.newValue));
+            }
+        };
+        window.addEventListener('storage', sync);
+        return () => window.removeEventListener('storage', sync);
     }, [isAuthenticated, user?.username, fetchWishlist]);
 
     // Save Guest wishlist to local storage
@@ -151,16 +170,18 @@ export const WishlistProvider = ({ children }: { children: ReactNode }) => {
 
     const wishlistCount = wishlist.length;
 
+    const contextValue = useMemo(() => ({
+        wishlist,
+        addToWishlist,
+        removeFromWishlist,
+        toggleWishlist,
+        isInWishlist,
+        wishlistCount,
+        loading
+    }), [wishlist, loading, toggleWishlist, wishlistCount]);
+
     return (
-        <WishlistContext.Provider value={{
-            wishlist,
-            addToWishlist,
-            removeFromWishlist,
-            toggleWishlist,
-            isInWishlist,
-            wishlistCount,
-            loading
-        }}>
+        <WishlistContext.Provider value={contextValue}>
             {children}
         </WishlistContext.Provider>
     );

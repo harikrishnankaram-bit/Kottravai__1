@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { Product, categories } from '@/data/products';
 import { safeSetItem, safeGetItem } from '@/utils/storage';
@@ -26,6 +26,7 @@ interface ProductContextType {
     categories: typeof categories;
     loading: boolean;
     getProductDetails: (slug: string) => Promise<Product>;
+    fetchProducts: (force?: boolean) => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -65,12 +66,39 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         variants: p.variants || []
     });
 
-    const fetchProducts = async () => {
+    const lastFetchRef = useRef<number>(0);
+    const fetchProducts = useCallback(async (force = false) => {
+        // High-Efficiency Check: Use cache if it's less than 30 minutes old
+        const cachedProducts = safeGetItem('kottravai_cache_products');
+        const cacheTime = safeGetItem('kottravai_cache_time');
+        const sessionChecked = sessionStorage.getItem('kottravai_session_checked');
+        const CACHE_TTL = 5 * 60 * 1000; // 🚀 Reduced to 5 minutes for better sync
+
+        // Throttling: Prevent fetching more than once every 30 seconds even if forced
+        const recentlyFetched = Date.now() - lastFetchRef.current < 30000;
+
+        if (!force && cachedProducts && cacheTime && sessionChecked) {
+            const isFresh = Date.now() - parseInt(cacheTime) < CACHE_TTL;
+            if (isFresh) {
+                setProducts(JSON.parse(cachedProducts));
+                setLoading(false);
+                return;
+            }
+        }
+
+        if (force && recentlyFetched) {
+            console.log('🛡️ Throttling forced fetch - using recent data');
+            return;
+        }
+
+        lastFetchRef.current = Date.now();
+
         try {
             const response = await axios.get(API_URL);
             const mappedProducts = response.data.map(mapProductFromDB);
 
             setProducts(mappedProducts);
+            sessionStorage.setItem('kottravai_session_checked', 'true');
             // Update local storage in the background to avoid blocking the main thread
             setTimeout(() => {
                 safeSetItem('kottravai_cache_products', JSON.stringify(mappedProducts));
@@ -78,20 +106,40 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
             }, 0);
         } catch (error) {
             console.error("Failed to fetch products from API", error);
+            // Fallback to cache on network failure
+            if (cachedProducts) setProducts(JSON.parse(cachedProducts));
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         fetchProducts();
-    }, []);
+
+        // Listen for storage changes from other tabs (e.g. Admin adding a product)
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === 'kottravai_cache_products' && e.newValue) {
+                try {
+                    setProducts(JSON.parse(e.newValue).map(mapProductFromDB));
+                } catch (err) {
+                    console.error("Failed to sync products across tabs", err);
+                }
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, [fetchProducts]);
 
     const addProduct = async (product: Product) => {
         try {
             const response = await axios.post(API_URL, product);
             const newProduct = mapProductFromDB(response.data);
-            setProducts(prev => [...prev, newProduct]);
+            setProducts(prev => {
+                const updated = [...prev, newProduct];
+                safeSetItem('kottravai_cache_products', JSON.stringify(updated));
+                return updated;
+            });
         } catch (error) {
             console.error("Failed to add product", error);
             throw error;
@@ -100,16 +148,18 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
 
     const updateProduct = async (updatedProduct: Product) => {
         try {
-            // API expects camelCase body as per server/index.js
             const response = await axios.put(`${API_URL}/${updatedProduct.id}`, updatedProduct);
             const mappedProduct = mapProductFromDB(response.data);
 
-            // Should preserve reviews if the update didn't return them populated
             if (!mappedProduct.reviews && updatedProduct.reviews) {
                 mappedProduct.reviews = updatedProduct.reviews;
             }
 
-            setProducts(prev => prev.map(p => p.id === mappedProduct.id ? mappedProduct : p));
+            setProducts(prev => {
+                const updated = prev.map(p => p.id === mappedProduct.id ? mappedProduct : p);
+                safeSetItem('kottravai_cache_products', JSON.stringify(updated));
+                return updated;
+            });
         } catch (error) {
             console.error("Failed to update product", error);
             throw error;
@@ -119,7 +169,11 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     const deleteProduct = async (id: string) => {
         try {
             await axios.delete(`${API_URL}/${id}`);
-            setProducts(prev => prev.filter(p => p.id !== id));
+            setProducts(prev => {
+                const updated = prev.filter(p => p.id !== id);
+                safeSetItem('kottravai_cache_products', JSON.stringify(updated));
+                return updated;
+            });
         } catch (error) {
             console.error("Failed to delete product", error);
             throw error;
@@ -162,8 +216,21 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const contextValue = useMemo(() => ({
+        products,
+        addProduct,
+        updateProduct,
+        deleteProduct,
+        updateStock,
+        addReview,
+        categories,
+        loading,
+        getProductDetails,
+        fetchProducts
+    }), [products, loading, fetchProducts]);
+
     return (
-        <ProductContext.Provider value={{ products, addProduct, updateProduct, deleteProduct, updateStock, addReview, categories, loading, getProductDetails }}>
+        <ProductContext.Provider value={contextValue}>
             {children}
         </ProductContext.Provider>
     );

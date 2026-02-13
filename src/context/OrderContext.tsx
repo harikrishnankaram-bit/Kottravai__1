@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo, useRef } from 'react';
 import { CartItem } from './CartContext';
 import { useAuth } from './AuthContext';
 import { supabase } from '@/utils/supabaseClient';
@@ -29,7 +29,7 @@ interface OrderContextType {
     updateOrderStatus: (id: string, status: Order['status']) => Promise<void>;
     deleteOrder: (id: string) => Promise<void>;
     refreshOrders: () => Promise<void>;
-    fetchAllOrders: () => Promise<void>;
+    fetchAllOrders: (force?: boolean) => Promise<void>;
     loading: boolean;
 }
 
@@ -40,9 +40,11 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [adminOrders, setAdminOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(false);
+    const hasFetchedOrders = useRef(false);
+    const hasFetchedAdminOrders = useRef(false);
 
-    const fetchOrders = async () => {
-        if (!user?.email) return;
+    const fetchOrders = useCallback(async () => {
+        if (!user?.email || hasFetchedOrders.current) return;
         try {
             const { data: { session } } = await supabase.auth.getSession();
             const token = session?.access_token;
@@ -50,29 +52,46 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setOrders(response.data);
+            hasFetchedOrders.current = true;
         } catch (error) {
             console.error("Failed to fetch user orders", error);
         }
-    };
+    }, [user?.email]);
 
-    const fetchAllOrders = async () => {
+    const lastAdminFetchRef = useRef<number>(0);
+    const fetchAllOrders = useCallback(async (force = false) => {
+        const recentlyFetched = Date.now() - lastAdminFetchRef.current < 30000;
+        if (!force && hasFetchedAdminOrders.current) return;
+        if (force && recentlyFetched) {
+            console.log('🛡️ Throttling admin orders fetch');
+            return;
+        }
+
+        lastAdminFetchRef.current = Date.now();
+
         try {
             const adminPass = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
             const response = await axios.get(`${API_URL}/orders`, {
                 headers: { 'X-Admin-Secret': adminPass }
             });
             setAdminOrders(response.data);
+            hasFetchedAdminOrders.current = true;
         } catch (error) {
             console.error("Failed to fetch all orders for admin", error);
         }
-    };
+    }, []);
 
     useEffect(() => {
         if (isAuthenticated && user?.email) {
             setLoading(true);
 
             // Only fetch what's needed for the current user
-            fetchOrders().finally(() => setLoading(false));
+            if (!hasFetchedOrders.current) {
+                fetchOrders().finally(() => {
+                    setLoading(false);
+                    hasFetchedOrders.current = true;
+                });
+            }
 
             // Polling for live updates only if authenticated
             const interval = setInterval(() => {
@@ -93,7 +112,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setOrders(prev => [response.data, ...prev]);
-            fetchAllOrders(); // Sync admin view
+            fetchAllOrders(true); // Sync admin view
         } catch (error) {
             console.error("Failed to add order", error);
             throw error;
@@ -128,17 +147,19 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const contextValue = useMemo(() => ({
+        orders,
+        adminOrders,
+        addOrder,
+        updateOrderStatus,
+        deleteOrder,
+        refreshOrders: fetchOrders,
+        fetchAllOrders,
+        loading
+    }), [orders, adminOrders, fetchOrders, fetchAllOrders, loading]);
+
     return (
-        <OrderContext.Provider value={{
-            orders,
-            adminOrders,
-            addOrder,
-            updateOrderStatus,
-            deleteOrder,
-            refreshOrders: fetchOrders,
-            fetchAllOrders,
-            loading
-        }}>
+        <OrderContext.Provider value={contextValue}>
             {children}
         </OrderContext.Provider>
     );
