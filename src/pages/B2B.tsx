@@ -2,7 +2,7 @@ import { useState, FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import MainLayout from '@/layouts/MainLayout';
-import { BadgeCheck, Heart, Leaf, Users, Gift, Truck, FileText, Send, Building2, UserCheck, Briefcase, ChevronLeft, ChevronRight } from 'lucide-react';
+import { BadgeCheck, Heart, Leaf, Users, Gift, Truck, FileText, Send, Building2, UserCheck, Briefcase, ChevronLeft, ChevronRight, Palmtree, Sparkles, Monitor, Star, Tag } from 'lucide-react';
 import { useReviews } from '@/context/ReviewContext';
 
 const B2B = () => {
@@ -462,46 +462,47 @@ const B2B = () => {
                         >
                             {[
                                 {
-                                    image: "https://kottravai.in/wp-content/uploads/2025/12/Generated-Image-December-08-2025-11_36AM-1-1.png",
+                                    icon: Palmtree,
                                     title: "Artisan Heritage Hampers",
                                     desc: "Terracotta, palm crafts, brass décor and handwoven textiles.",
                                     tag: "Perfect for: Leadership gifting, cultural events"
                                 },
                                 {
-                                    image: "https://kottravai.in/wp-content/uploads/2025/12/Generated-Image-December-08-2025-11_37AM-1.png",
+                                    icon: Sparkles,
                                     title: "Wellness & Care Packs",
                                     desc: "Herbal soaps, natural foods, handcrafted accessories.",
                                     tag: "Perfect for: Employee wellness"
                                 },
                                 {
-                                    image: "https://kottravai.in/wp-content/uploads/2025/12/Generated-Image-December-08-2025-11_38AM-1.png",
+                                    icon: Monitor,
                                     title: "Desk & Workspace Gifts",
                                     desc: "Minimalist décor, handcrafted stationery, utility crafts.",
                                     tag: "Perfect for: Onboarding & welcome kits"
                                 },
                                 {
-                                    image: "https://kottravai.in/wp-content/uploads/2025/12/Generated-Image-December-08-2025-11_36AM-2.png",
+                                    icon: Star,
                                     title: "Festival & Milestone Hampers",
                                     desc: "Custom festive gifting with regional specialties.",
                                     tag: "Perfect for: Diwali, New Year"
                                 },
                                 {
-                                    image: "https://kottravai.in/wp-content/uploads/2025/12/Generated-Image-December-08-2025-11_35AM-1.png",
+                                    icon: Tag,
                                     title: "Custom Co-Branded Gifts",
                                     desc: "Personalised packaging with brand story inserts.",
                                     tag: "Perfect for: Conferences & campaigns"
                                 }
                             ].map((item, idx) => (
-                                <article key={idx} className="min-w-[300px] md:min-w-[360px] bg-white rounded-[20px] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(142,42,139,0.12)] hover:-translate-y-2 transition-all duration-300 border border-gray-100 flex flex-col snap-center">
-                                    <div
-                                        className="h-[240px] w-full bg-cover bg-center transition-transform duration-500 hover:scale-105"
-                                        style={{ backgroundImage: `url('${item.image}')` }}
-                                    ></div>
-                                    <div className="p-7 flex-1 flex flex-col">
-                                        <h3 className="text-[22px] font-bold text-[#1A1A1A] mb-3 leading-tight">{item.title}</h3>
-                                        <p className="text-[#666] leading-relaxed mb-6 text-[15px] flex-grow">{item.desc}</p>
-                                        <div className="mt-auto inline-block bg-[#F8F0FF] text-[#8E2A8B] font-semibold text-xs px-3 py-2 rounded-lg self-start">
-                                            {item.tag}
+                                <article key={idx} className="min-w-[300px] md:min-w-[360px] bg-white rounded-[20px] overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.04)] hover:shadow-[0_25px_50px_rgba(142,42,139,0.15)] hover:-translate-y-3 transition-all duration-500 border border-gray-100 flex flex-col snap-center h-full group">
+                                    <div className="h-[200px] w-full flex items-center justify-center bg-[#F8F0FF] group-hover:bg-[#8E2A8B] transition-colors duration-500 shrink-0">
+                                        <item.icon className="w-20 h-20 text-[#8E2A8B] group-hover:text-white transition-all duration-500 transform group-hover:scale-110" />
+                                    </div>
+                                    <div className="p-8 flex-1 flex flex-col">
+                                        <h3 className="text-2xl font-bold text-[#1A1A1A] mb-4 leading-tight">{item.title}</h3>
+                                        <p className="text-[#555] leading-relaxed mb-6 text-[15px] flex-grow">{item.desc}</p>
+                                        <div className="mt-auto">
+                                            <div className="inline-block bg-[#F8F0FF] text-[#8E2A8B] font-bold text-[11px] uppercase tracking-wider px-4 py-2.5 rounded-xl">
+                                                {item.tag}
+                                            </div>
                                         </div>
                                     </div>
                                 </article>

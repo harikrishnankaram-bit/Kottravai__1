@@ -5,7 +5,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import MainLayout from '@/layouts/MainLayout';
 import { useCart } from '@/context/CartContext';
 import { useProducts } from '@/context/ProductContext';
-import { ShoppingBag, Star, Heart, Minus, Plus, X, Check, Share2 } from 'lucide-react';
+import { ShoppingBag, Star, Heart, Minus, Plus, X, Check, Share2, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const ProductDetails = () => {
@@ -125,6 +125,20 @@ const ProductDetails = () => {
     };
 
 
+    const allImages = Array.from(new Set([product.image, ...(product.images || [])]));
+
+    const handlePrevImage = () => {
+        const currentIndex = allImages.indexOf(mainImage || product.image);
+        const prevIndex = (currentIndex - 1 + allImages.length) % allImages.length;
+        setMainImage(allImages[prevIndex]);
+    };
+
+    const handleNextImage = () => {
+        const currentIndex = allImages.indexOf(mainImage || product.image);
+        const nextIndex = (currentIndex + 1) % allImages.length;
+        setMainImage(allImages[nextIndex]);
+    };
+
     const handleSubmitReview = (e: React.FormEvent) => {
         e.preventDefault();
         if (product) {
@@ -167,8 +181,25 @@ const ProductDetails = () => {
                 <div className="flex flex-col lg:flex-row gap-8 lg:gap-16 mb-16">
                     {/* Image Section */}
                     <div className="lg:w-1/2">
-                        <div className="bg-white md:bg-gray-50 rounded-[2rem] overflow-hidden mb-4 border border-gray-100 h-[380px] sm:h-[450px] md:h-[550px] shadow-sm md:shadow-none flex items-center justify-center p-4">
+                        <div className="relative bg-white md:bg-gray-50 rounded-[2rem] overflow-hidden mb-4 border border-gray-100 h-[380px] sm:h-[450px] md:h-[550px] shadow-sm md:shadow-none flex items-center justify-center p-4 group">
                             <img src={mainImage || product.image} alt={product.name} className="max-w-full max-h-full object-contain mix-blend-multiply" />
+
+                            {allImages.length > 1 && (
+                                <>
+                                    <button
+                                        onClick={handlePrevImage}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-gray-800 shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
+                                    >
+                                        <ChevronLeft size={24} />
+                                    </button>
+                                    <button
+                                        onClick={handleNextImage}
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white flex items-center justify-center text-gray-800 shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 z-10"
+                                    >
+                                        <ChevronRight size={24} />
+                                    </button>
+                                </>
+                            )}
                         </div>
                         {product.images && product.images.length > 0 && (
                             <div className="flex gap-4 overflow-x-auto pb-2 no-scrollbar">

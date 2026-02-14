@@ -26,7 +26,18 @@ export const NewsProvider = ({ children }: { children: ReactNode }) => {
     // Load from local storage or default to homeData
     const [newsItems, setNewsItems] = useState<NewsItem[]>(() => {
         const saved = safeGetItem('kottravai_news');
-        return saved ? JSON.parse(saved) : journalData.posts;
+        if (saved) {
+            const parsedSaved = JSON.parse(saved);
+            // Sync with initial data to pick up image path updates in development
+            return parsedSaved.map((p: NewsItem) => {
+                const initial = journalData.posts.find(ip => ip.id === p.id);
+                if (initial && initial.image !== p.image) {
+                    return { ...p, image: initial.image };
+                }
+                return p;
+            });
+        }
+        return journalData.posts;
     });
 
     useEffect(() => {

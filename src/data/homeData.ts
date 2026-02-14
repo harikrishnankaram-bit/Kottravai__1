@@ -94,7 +94,7 @@ export const journalData = {
             category: "INNOVATION",
             title: "Kottravai Achievements in Kungumam Thozi Reports by Mrs.Ramya Ranganathan.",
             date: "December, 2025",
-            image: "/uploads/2026/01/journal-group.jpg", // Using group photo as placeholder
+            image: "/Ach.jpeg", // Using group photo as placeholder
             link: "/blog/achievements"
         },
         {
@@ -110,7 +110,7 @@ export const journalData = {
             category: "GROWTH",
             title: "Transforming Beedi-Working Women into Skilled Craft Professionals",
             date: "December 20, 2025",
-            image: "/uploads/2025/01/hero-bg.jpg", // Keeping original placeholder for now as no 4th image
+            image: "/4.png", // Keeping original placeholder for now as no 4th image
             link: "/blog/transforming-lives"
         }
     ]
@@ -120,7 +120,7 @@ export const trustedPartners = [
     {
         id: 1,
         name: "TenSemi",
-        logo: null
+        logo: "/tensemi.webp"
     },
     {
         id: 2,
@@ -130,32 +130,32 @@ export const trustedPartners = [
     {
         id: 3,
         name: "Raphael Creatives",
-        logo: "/uploads/2026/01/Raphael-creatives-logo.png"
+        logo: "/raphael.jpeg"
     },
     {
         id: 4,
-        name: "Iyamthiram",
-        logo: null
+        name: "Iyanthiran",
+        logo: "/iyanthiran.jpeg"
     },
     {
         id: 5,
         name: "Iragu Events",
-        logo: null
+        logo: "/iragu.jpeg"
     },
     {
         id: 6,
         name: "Sprint6",
-        logo: null
+        logo: "/sprint.jpeg"
     },
     {
         id: 7,
         name: "Franchise Bhoomi",
-        logo: null
+        logo: "/franchise.jpeg"
     },
     {
         id: 8,
         name: "Startup Singam",
-        logo: null
+        logo: "/startupsingam.jpeg"
     }
 ];
 
@@ -165,21 +165,21 @@ export const testimonials = [
         name: "Vasuki",
         role: "INFLUENCER - BANGALORE",
         content: "The first thing we noticed about Kottravai's coconut shell products was the finish and strength. They feel solid, well-made, and natural. Nothing feels artificial or rushed. It's clear that real effort and care go into making every piece.",
-        image: "/uploads/2025/12/profile-1.jpeg"
+        image: "/vasuki.jpeg"
     },
     {
         id: 2,
         name: "Aarthi",
         role: "ENTREPRENEUR - KOVILPATTI",
         content: "We ordered out of curiosity, but the product turned out to be really well finished. It feels natural, strong, and thoughtfully made. Definitely better than we expected.",
-        image: "/uploads/2025/12/profile-1.jpeg"
+        image: "/Aarthi.jpeg"
     },
     {
         id: 3,
         name: "Harish",
         role: "3D ARTIST - MADURAI",
         content: "What we liked most is that everything is made in-house and in India. Knowing it supports local women and sustainable work makes the purchase feel more meaningful.",
-        image: "/uploads/2025/12/profile-1.jpeg"
+        image: "/harish.jpeg"
     }
 ];
 

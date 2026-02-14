@@ -17,7 +17,7 @@ const FloatingWhatsApp: React.FC = () => {
     };
 
     return (
-        <div className="fixed bottom-[85px] md:bottom-[100px] right-6 md:right-8 z-[90] flex flex-col items-end gap-3 pointer-events-none">
+        <div className="fixed bottom-[150px] md:bottom-[92px] right-6 md:right-8 z-[90] flex flex-col items-end gap-3 pointer-events-none">
             {showTooltip && (
                 <div className="pointer-events-auto absolute bottom-0 right-full mr-4 bg-white px-5 py-3 rounded-2xl shadow-2xl border border-gray-100 animate-in fade-in slide-in-from-right-2 duration-500 whitespace-nowrap hidden md:block">
                     <button

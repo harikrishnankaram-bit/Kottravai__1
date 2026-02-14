@@ -20,7 +20,18 @@ const PartnerContext = createContext<PartnerContextType | undefined>(undefined);
 export const PartnerProvider = ({ children }: { children: ReactNode }) => {
     const [partners, setPartners] = useState<Partner[]>(() => {
         const saved = safeGetItem('kottravai_partners');
-        return saved ? JSON.parse(saved) : initialPartners;
+        if (saved) {
+            const parsedSaved = JSON.parse(saved);
+            // Sync with initialPartners to pick up new logo additions in development
+            return parsedSaved.map((p: Partner) => {
+                const initial = initialPartners.find(ip => ip.id === p.id);
+                if (initial && initial.logo && (!p.logo || p.logo === 'null')) {
+                    return { ...p, logo: initial.logo };
+                }
+                return p;
+            });
+        }
+        return initialPartners;
     });
 
     useEffect(() => {

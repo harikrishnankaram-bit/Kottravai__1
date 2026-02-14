@@ -475,14 +475,14 @@ const ChatWidget = () => {
             {/* Trigger Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`fixed bottom-[155px] md:bottom-6 right-6 md:right-8 z-[90] p-3.5 md:p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 group flex items-center justify-center
+                className={`fixed bottom-[80px] md:bottom-6 right-6 md:right-8 z-[90] p-3.5 md:p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95 group flex items-center justify-center
           ${isOpen ? 'bg-[#2D1B4E] rotate-90' : 'bg-[#b5128f] hover:bg-[#8E2A8B]'}`}
             >
                 {isOpen ? <X className="text-white" size={24} /> : <Bot className="text-white" size={24} />}
             </button>
 
             {/* Chat Window */}
-            <div className={`fixed bottom-[225px] md:bottom-24 right-6 md:right-8 z-[90] w-[90vw] md:w-[350px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col transition-all duration-500 origin-bottom-right
+            <div className={`fixed bottom-[150px] md:bottom-[92px] right-6 md:right-8 z-[90] w-[90vw] md:w-[350px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col transition-all duration-500 origin-bottom-right
         ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-75 opacity-0 translate-y-20 pointer-events-none'}`}
                 style={{ maxHeight: '60vh' }}
             >

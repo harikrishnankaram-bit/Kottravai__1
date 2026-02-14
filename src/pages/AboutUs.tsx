@@ -1,4 +1,4 @@
-import { Heart, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, Globe, ChevronLeft, ChevronRight, Users, HeartPulse, Wallet, Sprout } from 'lucide-react';
 import MainLayout from '@/layouts/MainLayout';
 import { useState, useEffect } from 'react';
 
@@ -168,12 +168,8 @@ const AboutUs = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                             {/* Item 1 */}
                             <div className="text-center p-5 hover:-translate-y-1 transition-transform duration-300 md:flex md:flex-col md:text-center md:items-center sm:text-left sm:flex-row sm:items-start sm:gap-5 group">
-                                <div className="w-20 h-20 mx-auto sm:mx-0 md:mx-auto mb-5 flex items-center justify-center bg-[#F8F0FF] rounded-full p-4 shadow-md transition-all duration-300 group-hover:bg-white group-hover:shadow-lg flex-shrink-0">
-                                    <img
-                                        src="https://kottravai.in/wp-content/uploads/2025/12/empowerment.png"
-                                        alt="Women empowered"
-                                        className="w-full h-full object-contain"
-                                    />
+                                <div className="w-20 h-20 mx-auto sm:mx-0 md:mx-auto mb-5 flex items-center justify-center bg-[#F8F0FF] rounded-full p-4 shadow-md transition-all duration-300 group-hover:bg-[#8B2C84] group-hover:shadow-lg flex-shrink-0">
+                                    <Users className="w-10 h-10 text-[#8B2C84] group-hover:text-white transition-colors duration-300" />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 mb-2">Women Empowered</h3>
@@ -185,12 +181,8 @@ const AboutUs = () => {
 
                             {/* Item 2 */}
                             <div className="text-center p-5 hover:-translate-y-1 transition-transform duration-300 md:flex md:flex-col md:text-center md:items-center sm:text-left sm:flex-row sm:items-start sm:gap-5 group">
-                                <div className="w-20 h-20 mx-auto sm:mx-0 md:mx-auto mb-5 flex items-center justify-center bg-[#F8F0FF] rounded-full p-4 shadow-md transition-all duration-300 group-hover:bg-white group-hover:shadow-lg flex-shrink-0">
-                                    <img
-                                        src="https://kottravai.in/wp-content/uploads/2025/12/dignity.png"
-                                        alt="Health and wellbeing"
-                                        className="w-full h-full object-contain"
-                                    />
+                                <div className="w-20 h-20 mx-auto sm:mx-0 md:mx-auto mb-5 flex items-center justify-center bg-[#F8F0FF] rounded-full p-4 shadow-md transition-all duration-300 group-hover:bg-[#8B2C84] group-hover:shadow-lg flex-shrink-0">
+                                    <HeartPulse className="w-10 h-10 text-[#8B2C84] group-hover:text-white transition-colors duration-300" />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 mb-2">Health &amp; Wellbeing Restored</h3>
@@ -202,12 +194,8 @@ const AboutUs = () => {
 
                             {/* Item 3 */}
                             <div className="text-center p-5 hover:-translate-y-1 transition-transform duration-300 md:flex md:flex-col md:text-center md:items-center sm:text-left sm:flex-row sm:items-start sm:gap-5 group">
-                                <div className="w-20 h-20 mx-auto sm:mx-0 md:mx-auto mb-5 flex items-center justify-center bg-[#F8F0FF] rounded-full p-4 shadow-md transition-all duration-300 group-hover:bg-white group-hover:shadow-lg flex-shrink-0">
-                                    <img
-                                        src="https://kottravai.in/wp-content/uploads/2025/12/collaborate.png"
-                                        alt="Stable income"
-                                        className="w-full h-full object-contain"
-                                    />
+                                <div className="w-20 h-20 mx-auto sm:mx-0 md:mx-auto mb-5 flex items-center justify-center bg-[#F8F0FF] rounded-full p-4 shadow-md transition-all duration-300 group-hover:bg-[#8B2C84] group-hover:shadow-lg flex-shrink-0">
+                                    <Wallet className="w-10 h-10 text-[#8B2C84] group-hover:text-white transition-colors duration-300" />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 mb-2">Stable Livelihoods Created</h3>
@@ -219,12 +207,8 @@ const AboutUs = () => {
 
                             {/* Item 4 */}
                             <div className="text-center p-5 hover:-translate-y-1 transition-transform duration-300 md:flex md:flex-col md:text-center md:items-center sm:text-left sm:flex-row sm:items-start sm:gap-5 group">
-                                <div className="w-20 h-20 mx-auto sm:mx-0 md:mx-auto mb-5 flex items-center justify-center bg-[#F8F0FF] rounded-full p-4 shadow-md transition-all duration-300 group-hover:bg-white group-hover:shadow-lg flex-shrink-0">
-                                    <img
-                                        src="https://kottravai.in/wp-content/uploads/2025/12/ecology.png"
-                                        alt="Sustainability"
-                                        className="w-full h-full object-contain"
-                                    />
+                                <div className="w-20 h-20 mx-auto sm:mx-0 md:mx-auto mb-5 flex items-center justify-center bg-[#F8F0FF] rounded-full p-4 shadow-md transition-all duration-300 group-hover:bg-[#8B2C84] group-hover:shadow-lg flex-shrink-0">
+                                    <Sprout className="w-10 h-10 text-[#8B2C84] group-hover:text-white transition-colors duration-300" />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 mb-2">Sustainable Futures Built</h3>
@@ -574,7 +558,7 @@ const AboutUs = () => {
                         {/* Right Visual */}
                         <div className="relative h-[350px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
                             <img
-                                src="https://kottravai.in/wp-content/uploads/2025/12/DSC03611-scaled.jpg"
+                                src="/4.webp"
                                 alt="Kottravai artisans and craftsmanship"
                                 className="w-full h-full object-cover"
                             />

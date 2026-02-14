@@ -129,10 +129,10 @@ const Footer = () => {
             {showScrollTop && (
                 <button
                     onClick={scrollToTop}
-                    className="fixed bottom-24 right-6 w-10 h-10 border border-gray-800 rounded-full flex items-center justify-center hover:bg-[#d846ef] hover:border-[#d846ef] text-gray-400 hover:text-white transition-all z-50 bg-[#1a1a1a] shadow-2xl shadow-black"
+                    className="fixed bottom-[220px] md:bottom-[160px] right-6 md:right-8 w-10 h-10 md:w-12 md:h-12 border border-gray-100 bg-white rounded-full flex items-center justify-center text-[#b5128f] shadow-2xl transition-all z-[90] hover:scale-110 active:scale-95"
                     aria-label="Scroll to top"
                 >
-                    <ChevronUp size={20} />
+                    <ChevronUp size={24} />
                 </button>
             )}
         </footer>
