@@ -64,7 +64,18 @@ export const ReviewProvider = ({ children }: { children: ReactNode }) => {
     // Load from local storage or default to initialData
     const [reviews, setReviews] = useState<Review[]>(() => {
         const saved = safeGetItem('kottravai_reviews');
-        return saved ? JSON.parse(saved) : initialData;
+        if (saved) {
+            const parsedSaved = JSON.parse(saved);
+            // Sync with initialData to pick up image path updates in development
+            return parsedSaved.map((r: Review) => {
+                const initial = initialData.find(ir => ir.id === r.id);
+                if (initial && initial.image !== r.image) {
+                    return { ...r, image: initial.image };
+                }
+                return r;
+            });
+        }
+        return initialData;
     });
 
     useEffect(() => {

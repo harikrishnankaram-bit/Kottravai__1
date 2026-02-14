@@ -558,7 +558,7 @@ const AboutUs = () => {
                         {/* Right Visual */}
                         <div className="relative h-[350px] md:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
                             <img
-                                src="/4.webp"
+                                src="/4.png"
                                 alt="Kottravai artisans and craftsmanship"
                                 className="w-full h-full object-cover"
                             />
