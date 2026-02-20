@@ -258,7 +258,7 @@ const ChatWidget = () => {
                     followUpOptions = [{ label: 'Read Refund Policy', value: 'read_refund' }];
                 } else if (faqType === 'contact_support') {
                     answer = "You can reach us via WhatsApp or email at support@kottravai.in.";
-                    followUpOptions = [{ label: 'Chat on WhatsApp', value: 'whatsapp_chat' }];
+                    followUpOptions = [{ label: 'Chat with us', value: 'whatsapp_chat' }];
                 }
 
                 botResponse = {
@@ -419,7 +419,7 @@ const ChatWidget = () => {
                     options: [
                         { label: 'Shipping Info', value: 'read_shipping' },
                         { label: 'Returns & Refunds', value: 'read_refund' },
-                        { label: 'Chat on WhatsApp', value: 'whatsapp_chat' }
+                        { label: 'Chat with our Team', value: 'whatsapp_chat' }
                     ]
                 };
             } else if (intentOverride === 'shipping_policy' || lowerText.includes('shipping')) {

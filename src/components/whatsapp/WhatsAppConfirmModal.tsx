@@ -21,13 +21,13 @@ const WhatsAppConfirmModal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm
                     <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 scale-110">
                         <MessageCircle size={32} />
                     </div>
-                    <h2 className="text-xl font-bold">WhatsApp Order</h2>
+                    <h2 className="text-xl font-bold">Chat with Us</h2>
                     <p className="text-white/80 text-sm mt-1">Connect directly with our team</p>
                 </div>
 
                 <div className="p-8">
                     <p className="text-gray-600 text-center mb-6">
-                        You are about to order <span className="font-bold text-gray-900">"{productName}"</span> via WhatsApp.
+                        You are about to inquire about <span className="font-bold text-gray-900">"{productName}"</span> via WhatsApp.
                     </p>
 
                     <div className="mb-6">
@@ -46,7 +46,7 @@ const WhatsAppConfirmModal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm
                             onClick={() => onConfirm(city)}
                             className="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-500/20"
                         >
-                            🚀 Continue to Chat
+                            🚀 Send Message
                         </button>
                         <button
                             onClick={onClose}
@@ -57,7 +57,7 @@ const WhatsAppConfirmModal: React.FC<ModalProps> = ({ isOpen, onClose, onConfirm
                     </div>
 
                     <p className="text-[10px] text-gray-400 text-center mt-6 uppercase tracking-widest font-bold">
-                        Secure Direct Ordering
+                        Direct Team Contact
                     </p>
                 </div>
 
