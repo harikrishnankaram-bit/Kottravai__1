@@ -4,6 +4,7 @@ import { Menu, X, Search, User, ShoppingBag, ChevronDown } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import LoginModal from './LoginModal';
+import analytics from '@/utils/analyticsService';
 
 const Header = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -28,6 +29,7 @@ const Header = () => {
     const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (searchQuery.trim()) {
+            analytics.trackEvent('search_query', { query: searchQuery.trim() });
             navigate(`/shop?search=${encodeURIComponent(searchQuery)}`);
             setIsSearchOpen(false);
             setSearchQuery('');

@@ -6,6 +6,7 @@ import MainLayout from '@/layouts/MainLayout';
 import { useCart } from '@/context/CartContext';
 import { useProducts } from '@/context/ProductContext';
 import { useWishlist } from '@/context/WishlistContext';
+import analytics from '@/utils/analyticsService';
 
 const Shop = () => {
     const { slug } = useParams();
@@ -199,6 +200,7 @@ const Shop = () => {
                                                     to={`/category/${parent.slug}`}
                                                     className={`flex items-center justify-between flex-1 p-3 rounded-xl transition-all duration-300 ${isActive ? 'bg-[#b5128f]/10 text-[#b5128f]' : 'text-[#2D1B4E] hover:bg-gray-50'}`}
                                                     onClick={() => {
+                                                        analytics.trackEvent('filter_used', { type: 'category', value: parent.slug });
                                                         if (hasChildren) {
                                                             setExpandedCategory(parent.slug === expandedCategory ? null : parent.slug);
                                                         }
@@ -230,6 +232,7 @@ const Shop = () => {
                                                                 <Link
                                                                     to={`/category/${child.slug}`}
                                                                     className={`group/child flex justify-between items-center p-2 rounded-lg text-xs transition-colors ${isChildActive ? 'text-[#b5128f] font-bold bg-[#b5128f]/5' : 'text-gray-500 hover:text-[#b5128f] hover:bg-gray-50'}`}
+                                                                    onClick={() => analytics.trackEvent('filter_used', { type: 'subcategory', value: child.slug })}
                                                                 >
                                                                     <div className="flex items-center gap-2">
                                                                         <div className={`w-1 h-1 rounded-full transition-all ${isChildActive ? 'bg-[#b5128f] scale-150' : 'bg-gray-300 group-hover/child:bg-[#b5128f]'}`}></div>
@@ -268,7 +271,11 @@ const Shop = () => {
                                             min="50" max="1000"
                                             step="10"
                                             value={priceRange[1]}
-                                            onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                                            onChange={(e) => {
+                                                const val = parseInt(e.target.value);
+                                                setPriceRange([priceRange[0], val]);
+                                                analytics.trackEvent('filter_used', { type: 'price_range', max_price: val });
+                                            }}
                                             className="w-full accent-[#b5128f] h-1.5 bg-gray-100 rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#b5128f]/20 transition-all"
                                         />
                                         <div className="flex justify-between mt-4">
@@ -545,6 +552,7 @@ const Shop = () => {
                                                                     onClick={() => {
                                                                         setSortBy(option.value);
                                                                         setIsSortOpen(false);
+                                                                        analytics.trackEvent('sort_used', { sort_by: option.value });
                                                                     }}
                                                                 >
                                                                     {option.label}

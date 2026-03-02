@@ -7,6 +7,7 @@ import { useCart } from '@/context/CartContext';
 import { useProducts } from '@/context/ProductContext';
 import { ShoppingBag, Star, Heart, Minus, Plus, X, Check, Share2, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import analytics from '@/utils/analyticsService';
 
 const ProductDetails = () => {
     const { slug } = useParams();
@@ -94,8 +95,30 @@ const ProductDetails = () => {
             if (product.variants && product.variants.length > 0) {
                 setSelectedVariant(product.variants[0]);
             }
+            // Track product view
+            analytics.trackEvent('product_view', {
+                product_id: product.id,
+                product_name: product.name,
+                category: product.category,
+                price: product.price
+            });
         }
         window.scrollTo(0, 0);
+    }, [slug]);
+
+    // Track Time Spent on Product Page
+    useEffect(() => {
+        const startTime = Date.now();
+        return () => {
+            const timeSpent = Math.floor((Date.now() - startTime) / 1000); // in seconds
+            if (product) {
+                analytics.trackEvent('time_spent_on_product', {
+                    product_id: product.id,
+                    product_name: product.name,
+                    duration_seconds: timeSpent
+                });
+            }
+        };
     }, [product]);
 
     if (!product) {
@@ -131,12 +154,14 @@ const ProductDetails = () => {
         const currentIndex = allImages.indexOf(mainImage || product.image);
         const prevIndex = (currentIndex - 1 + allImages.length) % allImages.length;
         setMainImage(allImages[prevIndex]);
+        analytics.trackEvent('image_zoom', { interaction: 'prev_image', product_name: product.name });
     };
 
     const handleNextImage = () => {
         const currentIndex = allImages.indexOf(mainImage || product.image);
         const nextIndex = (currentIndex + 1) % allImages.length;
         setMainImage(allImages[nextIndex]);
+        analytics.trackEvent('image_zoom', { interaction: 'next_image', product_name: product.name });
     };
 
     const handleSubmitReview = (e: React.FormEvent) => {
@@ -302,7 +327,12 @@ const ProductDetails = () => {
                                 <div className="w-11 h-11 rounded-full border border-gray-100 flex items-center justify-center group-hover:bg-red-50 group-hover:border-red-100 transition-all"><Heart size={18} className="group-hover:text-red-500 transition-colors" /></div>
                                 <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-black">Wishlist</span>
                             </button>
-                            <button onClick={() => navigator.share && navigator.share({ title: product.name, url: window.location.href })} className="flex items-center gap-3 group">
+                            <button onClick={() => {
+                                if (navigator.share) {
+                                    navigator.share({ title: product.name, url: window.location.href });
+                                    analytics.trackEvent('product_share', { method: 'native_share', product_name: product.name });
+                                }
+                            }} className="flex items-center gap-3 group">
                                 <div className="w-11 h-11 rounded-full border border-gray-100 flex items-center justify-center group-hover:bg-blue-50 group-hover:border-blue-100 transition-all"><Share2 size={18} className="group-hover:text-blue-500 transition-colors" /></div>
                                 <span className="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-black">Share</span>
                             </button>
@@ -394,7 +424,12 @@ const ProductDetails = () => {
                         <h3 className="text-4xl font-black text-[#2D1B4E] mb-12">You May Also <span className="text-[#b5128f]">Like</span></h3>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                             {relatedProducts.map(rel => (
-                                <Link key={rel.id} to={`/product/${rel.slug}`} className="group">
+                                <Link
+                                    key={rel.id}
+                                    to={`/product/${rel.slug}`}
+                                    className="group"
+                                    onClick={() => analytics.trackEvent('related_product_click', { original_product: product.name, clicked_product: rel.name })}
+                                >
                                     <div className="bg-white rounded-[2rem] border border-gray-100 overflow-hidden mb-4 shadow-sm group-hover:shadow-xl transition-all h-[250px] md:h-[300px]">
                                         <img src={rel.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                     </div>

@@ -84,7 +84,6 @@ const Footer = () => {
                         <li><Link to="/refund-policy" className="hover:text-[#d846ef] transition-colors">Refund Policy</Link></li>
                         <li><Link to="/terms-of-service" className="hover:text-[#d846ef] transition-colors">Terms Of Service</Link></li>
                         <li><Link to="/privacy-policy" className="hover:text-[#d846ef] transition-colors">Privacy Policy</Link></li>
-                        <li><Link to="/sitemap" className="hover:text-[#d846ef] transition-colors">Sitemap</Link></li>
                     </ul>
                 </div>
 
@@ -129,7 +128,7 @@ const Footer = () => {
             {showScrollTop && (
                 <button
                     onClick={scrollToTop}
-                    className="fixed bottom-[220px] md:bottom-[160px] right-6 md:right-8 w-10 h-10 md:w-12 md:h-12 border border-gray-100 bg-white rounded-full flex items-center justify-center text-[#b5128f] shadow-2xl transition-all z-[90] hover:scale-110 active:scale-95"
+                    className="fixed bottom-[148px] md:bottom-[92px] right-6 md:right-8 w-10 h-10 md:w-12 md:h-12 border border-gray-100 bg-white rounded-full flex items-center justify-center text-[#b5128f] shadow-2xl transition-all z-[90] hover:scale-110 active:scale-95"
                     aria-label="Scroll to top"
                 >
                     <ChevronUp size={24} />

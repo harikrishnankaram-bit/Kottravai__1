@@ -1,20 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
-import { CheckCircle, Lock, ChevronDown, ShoppingBag } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { CheckCircle, Lock, ChevronDown, ShoppingBag, Truck, ChevronRight } from 'lucide-react';
 import MainLayout from '@/layouts/MainLayout';
 import { useCart } from '@/context/CartContext';
 import { useOrders } from '@/context/OrderContext';
+import { useShipping } from '@/hooks/useShipping';
 import toast from 'react-hot-toast';
+import analytics from '@/utils/analyticsService';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 import { useAuth } from '@/context/AuthContext';
 
+const INDIAN_STATES = [
+    "Tamil Nadu", "Karnataka", "Kerala", "Andhra Pradesh", "Telangana",
+    "Delhi", "Maharashtra", "Gujarat", "Rajasthan", "Uttar Pradesh",
+    "Madhya Pradesh", "West Bengal", "Odisha", "Punjab", "Haryana",
+    "Bihar", "Jharkhand", "Chhattisgarh", "Assam", "Himachal Pradesh",
+    "Uttarakhand", "Goa", "Tripura", "Meghalaya", "Manipur",
+    "Nagaland", "Mizoram", "Arunachal Pradesh", "Sikkim"
+];
+
 const Checkout = () => {
     const { isAuthenticated, openLoginModal, user } = useAuth();
     const { cart, cartTotal, clearCart } = useCart();
     const { addOrder } = useOrders();
+    const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
         fullName: user?.fullName || '',
@@ -28,6 +40,22 @@ const Checkout = () => {
         paymentMethod: 'online'
     });
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [orderPlaced, setOrderPlaced] = useState(false);
+    const [lastOrderDetails, setLastOrderDetails] = useState<any>(null);
+    const [discountCode, setDiscountCode] = useState('');
+    const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
+
+    // --- DYNAMIC SHIPPING LOGIC (Finalized 3-Zone) ---
+    const { charge: shippingCost, remaining, isFree, threshold } = useShipping(cartTotal, formData.state);
+
+    // Calculations
+    const discountAmount = 0; // Example placeholder
+    const totalAmount = cartTotal + (shippingCost || 0) - discountAmount;
+
+    // Progress for Free Shipping Bar
+    const shippingProgress = Math.min(100, (cartTotal / (threshold || 1)) * 100);
+
     // Auto-prefill if user logs in while on page
     useEffect(() => {
         if (user) {
@@ -40,16 +68,26 @@ const Checkout = () => {
         }
     }, [user]);
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [orderPlaced, setOrderPlaced] = useState(false);
-    const [lastOrderDetails, setLastOrderDetails] = useState<any>(null);
-    const [discountCode, setDiscountCode] = useState('');
-    const [isMobileSummaryOpen, setIsMobileSummaryOpen] = useState(false);
+    // Track Checkout Started
+    useEffect(() => {
+        if (cart.length > 0) {
+            analytics.trackEvent('checkout_started', {
+                cart_items: cart.length,
+                total_amount: totalAmount
+            });
+        }
+    }, []);
 
-    // Calculations
-    const shippingCost = 60; // Default shipping cost
-    const discountAmount = 0; // Example placeholder
-    const totalAmount = cartTotal + shippingCost - discountAmount;
+    // Track Address Filled (triggers when key fields are populated)
+    useEffect(() => {
+        if (formData.address && formData.city && formData.zipCode) {
+            analytics.trackEvent('address_filled', {
+                city: formData.city,
+                state: formData.state,
+                country: formData.country
+            });
+        }
+    }, [formData.address, formData.city, formData.zipCode]);
 
     // Help fix Mixed Content errors by ensuring local URLs are treated as relative paths
     const sanitizeUrl = (url: string) => {
@@ -148,6 +186,11 @@ const Checkout = () => {
                         const verifyResult = await verifyResponse.json();
 
                         if (verifyResult.status === "success") {
+                            analytics.trackEvent('payment_success', {
+                                order_id: response.razorpay_order_id,
+                                payment_id: response.razorpay_payment_id,
+                                amount: totalAmount
+                            });
                             // 3. Save Order to Database
                             await addOrder(orderData);
                             console.log("Order saved to database successfully");
@@ -178,12 +221,19 @@ const Checkout = () => {
             rzp.on('payment.failed', function (response: any) {
                 console.error("Payment failure:", response.error);
                 toast.error("Payment Failed: " + response.error.description);
+                analytics.trackEvent('payment_failed', {
+                    error_description: response.error.description,
+                    order_id: response.error.metadata.order_id,
+                    payment_id: response.error.metadata.payment_id
+                });
                 setIsSubmitting(false);
             });
 
             rzp.open();
+            analytics.trackEvent('razorpay_initiated', { order_id: activeOrder.id, amount: totalAmount });
 
         } catch (error: any) {
+            analytics.trackEvent('payment_failed', { error: error.message });
             console.error("Checkout submission error:", error);
             toast.error("Error: " + error.message);
             setIsSubmitting(false);
@@ -448,16 +498,22 @@ const Checkout = () => {
                                         />
                                     </div>
                                     <div className="md:col-span-1">
-                                        <label className="block text-sm font-semibold text-gray-700 mb-2">State</label>
-                                        <input
-                                            type="text"
-                                            name="state"
-                                            required
-                                            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#8E2A8B] focus:border-transparent outline-none transition-all placeholder-gray-400"
-                                            placeholder="Enter state"
-                                            value={formData.state}
-                                            onChange={handleChange}
-                                        />
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">State <span className="text-red-500">*</span></label>
+                                        <div className="relative">
+                                            <select
+                                                name="state"
+                                                required
+                                                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-[#8E2A8B] focus:border-transparent outline-none transition-all appearance-none bg-white font-medium text-gray-700"
+                                                value={formData.state}
+                                                onChange={handleChange}
+                                            >
+                                                <option value="">Select State</option>
+                                                {INDIAN_STATES.map(state => (
+                                                    <option key={state} value={state}>{state}</option>
+                                                ))}
+                                            </select>
+                                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+                                        </div>
                                     </div>
                                     <div className="md:col-span-1">
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">ZIP Code</label>
@@ -502,7 +558,50 @@ const Checkout = () => {
                         {/* RIGHT COLUMN: Order Summary */}
                         <div className="lg:w-5/12 w-full lg:pl-8">
                             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 sticky top-24">
-                                <h2 className="text-xl font-bold text-[#1A1A1A] mb-6">Review your cart</h2>
+                                <h2 className="text-xl font-bold text-[#1A1A1A] mb-4">Review your cart</h2>
+
+                                {/* --- DYNAMIC FREE SHIPPING PROGRESS BAR --- */}
+                                <div className="mb-8 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <Truck size={18} className={isFree ? "text-green-600" : "text-[#8E2A8B]"} />
+                                            <span className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                                                {isFree ? "Shipping Advantage" : "Shipping Progress"}
+                                            </span>
+                                        </div>
+                                        <span className="text-[10px] font-black text-[#8E2A8B] bg-purple-100 px-2 py-0.5 rounded-full">
+                                            {isFree ? "ACTIVE" : `₹${threshold} TARGET`}
+                                        </span>
+                                    </div>
+
+                                    {/* Progress Bar Visual */}
+                                    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
+                                        <div
+                                            className={`h-full transition-all duration-700 ease-out rounded-full ${isFree ? 'bg-green-500' : 'bg-[#8E2A8B]'}`}
+                                            style={{ width: `${shippingProgress}%` }}
+                                        />
+                                    </div>
+
+                                    {/* Dynamic Message & CTA */}
+                                    {remaining > 0 ? (
+                                        <div className="flex flex-col items-center gap-2">
+                                            <p className="text-sm font-medium text-gray-700 flex items-center justify-center gap-1">
+                                                Add <span className="font-bold text-[#8E2A8B]">₹{remaining}</span> more to get <span className="font-bold text-green-600">Free Shipping</span>
+                                            </p>
+                                            <button
+                                                type="button"
+                                                onClick={() => navigate('/shop?goal=free-shipping')}
+                                                className="text-sm font-medium text-[#8E2A8B] inline-flex items-center gap-1 hover:underline transition-all"
+                                            >
+                                                Shop More <ChevronRight size={14} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <p className="text-sm font-bold text-green-600 flex items-center justify-center gap-1 animate-pulse">
+                                            🎉 You’ve unlocked Free Shipping!
+                                        </p>
+                                    )}
+                                </div>
 
                                 <div className="space-y-6 mb-8 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
                                     {cart.map((item) => (
@@ -535,6 +634,12 @@ const Checkout = () => {
                                     />
                                     <button
                                         type="button"
+                                        onClick={() => {
+                                            if (discountCode) {
+                                                // Simulating coupon logic for tracking as the actual logic might be elsewhere
+                                                analytics.trackEvent('coupon_applied', { coupon: discountCode });
+                                            }
+                                        }}
                                         className="px-6 py-3 bg-blue-50 text-blue-600 font-bold rounded-lg hover:bg-blue-100 transition-colors"
                                     >
                                         Apply
@@ -561,13 +666,13 @@ const Checkout = () => {
                                     </div>
                                 </div>
 
-                                {/* Pay Now Button */}
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting}
-                                    className="w-full bg-[#3B82F6] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#2563EB] transition-all transform active:scale-[0.98] shadow-lg shadow-blue-500/20 disabled:opacity-70 disabled:cursor-not-allowed mb-6"
+                                    disabled={isSubmitting || !formData.state}
+                                    className={`w-full py-4 rounded-xl font-bold text-lg transition-all transform active:scale-[0.98] shadow-lg disabled:opacity-70 disabled:cursor-not-allowed mb-6 ${!formData.state ? 'bg-gray-400 text-white shadow-none' : 'bg-[#3B82F6] text-white shadow-blue-500/20 hover:bg-[#2563EB]'
+                                        }`}
                                 >
-                                    {isSubmitting ? 'Processing...' : 'Pay Now'}
+                                    {isSubmitting ? 'Processing...' : !formData.state ? 'Select State to Continue' : 'Pay Now'}
                                 </button>
 
                                 <div className="flex items-center justify-center gap-2 text-gray-500 text-sm">
@@ -581,8 +686,8 @@ const Checkout = () => {
                         </div>
                     </form>
                 </div>
-            </div>
-        </MainLayout>
+            </div >
+        </MainLayout >
     );
 };
 
